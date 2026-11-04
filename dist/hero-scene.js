@@ -7,7 +7,7 @@
     const counter = host.querySelector('[data-scene-counter]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)'), fine = matchMedia('(pointer:fine)');
     let gl;
-    try { gl = canvas.getContext('webgl', { alpha:true, antialias:true, preserveDrawingBuffer:true, powerPreference:'low-power' }); } catch (_) {}
+    try { gl = canvas.getContext('webgl', { alpha:true, antialias:false, preserveDrawingBuffer:true, powerPreference:'high-performance' }); } catch (_) {}
     if (!gl) { hint.textContent = 'Миниатюра страницы'; buttons.forEach(b => b.disabled = true); return; }
     const vertexSource = [
       'attribute vec3 a_position; attribute vec3 a_normal; attribute vec2 a_uv;',
@@ -18,7 +18,8 @@
       'gl_Position=u_projection*vec4(world.xyz-vec3(0.0,0.0,6.6),1.0); }'
     ].join('\n');
     const fragmentSource = [
-      'precision mediump float; uniform sampler2D u_texture; uniform sampler2D u_next; uniform bool u_textured;',
+      '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif',
+      'uniform sampler2D u_texture; uniform sampler2D u_next; uniform bool u_textured;',
       'uniform float u_progress; uniform float u_direction;',
       'uniform vec3 u_frame; varying vec3 v_normal; varying vec3 v_position; varying vec2 v_uv;',
       'void main(){ vec3 n=normalize(v_normal);',
@@ -31,7 +32,7 @@
       'if(offset<0.0||offset>1.0){color=texture2D(u_next,vec2(offset-u_direction,v_uv.y)).rgb;}',
       'else{color=texture2D(u_texture,vec2(offset,v_uv.y)).rgb;}',
       'float edge=min(min(v_uv.x,1.0-v_uv.x),min(v_uv.y,1.0-v_uv.y));',
-      'color=mix(u_frame,color,smoothstep(0.010,0.013,edge));}',
+      'color=mix(u_frame,color,smoothstep(0.0025,0.0035,edge));}',
       'color*=0.86+0.14*diffuse; color+=spec*0.055;',
       'gl_FragColor=vec4(color,1.0); }'
     ].join('\n');
@@ -65,10 +66,11 @@
       const f=Math.min(4.0,aspect*3.15),near=.1,far=25;
       return new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);
     }
-    const radius=2.8,bend=1.65,height=2.3,thickness=.045,segments=96;
+    const radius=2.8,bend=1.65,height=2.3,thickness=.025,segments=160,rows=80;
     function surface(u,v,back=false) {
-      const a=(u-.5)*bend;
-      return [Math.sin(a)*radius,(.5-v)*height,(Math.cos(a)-1)*radius+(back?-thickness:thickness)];
+      const a=(u-.5)*bend,y=(.5-v)*height,ring=Math.sqrt(radius*radius-y*y);
+      const r=(radius+(back?-thickness:thickness))/radius;
+      return [Math.sin(a)*ring*r,y*r,Math.cos(a)*ring*r-radius];
     }
     function createMesh(vertices,indices) {
       const vb=gl.createBuffer(),ib=gl.createBuffer();
@@ -78,10 +80,11 @@
     }
     function face(back) {
       const vertices=[],indices=[];
-      for(let i=0;i<=segments;i++) for(let j=0;j<2;j++) {
-        const u=i/segments,a=(u-.5)*bend,p=surface(u,j,back);
-        vertices.push(...p,Math.sin(a)*(back?-1:1),0,Math.cos(a)*(back?-1:1),back?1-u:u,1-j);
-        if(i<segments&&j===0){const n=i*2;if(back)indices.push(n,n+2,n+1,n+2,n+3,n+1);else indices.push(n,n+1,n+2,n+2,n+1,n+3);}
+      const stride=rows+1;
+      for(let i=0;i<=segments;i++) for(let j=0;j<=rows;j++) {
+        const u=i/segments,v=j/rows,p=surface(u,v,back),sign=back?-1:1;
+        vertices.push(...p,p[0]/radius*sign,p[1]/radius*sign,(p[2]+radius)/radius*sign,back?1-u:u,1-v);
+        if(i<segments&&j<rows){const n=i*stride+j;if(back)indices.push(n,n+stride,n+1,n+stride,n+stride+1,n+1);else indices.push(n,n+1,n+stride,n+stride,n+1,n+stride+1);}
       }
       return createMesh(vertices,indices);
     }
@@ -97,8 +100,11 @@
       quad([surface(a,0),surface(b,0),surface(b,0,true),surface(a,0,true)],[0,1,0]);
       quad([surface(a,1,true),surface(b,1,true),surface(b,1),surface(a,1)],[0,-1,0]);
     }
-    quad([surface(0,0,true),surface(0,1,true),surface(0,1),surface(0,0)],[-1,0,0]);
-    quad([surface(1,0),surface(1,1),surface(1,1,true),surface(1,0,true)],[1,0,0]);
+    for(let j=0;j<rows;j++){
+      const a=j/rows,b=(j+1)/rows;
+      quad([surface(0,a,true),surface(0,b,true),surface(0,b),surface(0,a)],[-1,0,0]);
+      quad([surface(1,a),surface(1,b),surface(1,b,true),surface(1,a,true)],[1,0,0]);
+    }
     const edgeMesh=createMesh(edgeVertices,edgeIndices);
     const position=gl.getAttribLocation(program,'a_position'),normal=gl.getAttribLocation(program,'a_normal'),uv=gl.getAttribLocation(program,'a_uv');
     const uniforms={model:gl.getUniformLocation(program,'u_model'),projection:gl.getUniformLocation(program,'u_projection'),texture:gl.getUniformLocation(program,'u_texture'),next:gl.getUniformLocation(program,'u_next'),progress:gl.getUniformLocation(program,'u_progress'),direction:gl.getUniformLocation(program,'u_direction'),textured:gl.getUniformLocation(program,'u_textured'),frame:gl.getUniformLocation(program,'u_frame')};
@@ -116,24 +122,25 @@
     const views=buttons.map(b=>({title:b.dataset.sceneTitle||b.textContent.trim(),kind:b.dataset.sceneKind||'studio'}));
     if(views.length<2)views.push({title:'SINDARIS',kind:'sindaris'});
     const screenshot=new Image();
-    screenshot.src='./assets/sindaris/home.png';
+    screenshot.src='./assets/sindaris/home-detail.jpg';
+    const textureWidth=Math.min(4096,gl.getParameter(gl.MAX_TEXTURE_SIZE)),textureScale=textureWidth/2048;
     function drawPage(view) {
-      const page=document.createElement('canvas');page.width=2048;page.height=1024;
+      const page=document.createElement('canvas');page.width=textureWidth;page.height=textureWidth/2;
       const c=page.getContext('2d'),dark=view.kind==='sindaris';
+      c.scale(textureScale,textureScale);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
       c.fillStyle=dark?'#0b110c':'#f7f5ed';c.fillRect(0,0,2048,1024);
       if(dark){
         c.fillStyle='#e1ebd5';c.font='bold 40px Arial';c.fillText('SINDARIS',72,108);
         c.font='22px Consolas,monospace';c.fillStyle='#91a177';c.fillText('Terminal',310,107);
         c.font='23px Arial';c.fillText('Логистика / Foxhole',1650,107);
         c.fillStyle='#33462b';c.fillRect(72,155,1904,2);
-        c.font='bold 86px Arial';c.fillStyle='#edf1e5';c.fillText('Логистика',72,335);
-        c.font='italic 86px Georgia';c.fillStyle='#b5dc68';c.fillText('в одном окне.',72,442);
-        c.fillStyle='#a8b995';c.font='29px Arial';c.fillText('Заказы, снабжение',76,560);c.fillText('и карта планирования.',76,604);
-        rounded(c,914,250,1034,512,12,'#121a12','#33462b');
-        if(screenshot.complete&&screenshot.naturalWidth)c.drawImage(screenshot,930,266,1002,480);
-        c.fillStyle='#a8b995';c.font='22px Consolas,monospace';c.fillText('Заказы  /  Снабжение  /  Планирование',940,832);
-        c.fillStyle='#91a177';c.font='20px Consolas,monospace';c.fillText('Next.js  /  FastAPI  /  PostgreSQL',76,906);
-        c.fillStyle='#33462b';c.fillRect(72,958,1904,2);
+        c.font='bold 82px Arial';c.fillStyle='#edf1e5';c.fillText('Логистика',72,296);
+        c.font='italic 86px Georgia';c.fillStyle='#b5dc68';c.fillText('в одном окне.',555,296);
+        c.fillStyle='#a8b995';c.font='28px Arial';c.fillText('Заказы, снабжение и карта планирования.',76,363);
+        rounded(c,61,415,1926,504,12,'#121a12','#33462b');
+        if(screenshot.complete&&screenshot.naturalWidth)c.drawImage(screenshot,72,427,1904,1904*screenshot.naturalHeight/screenshot.naturalWidth);
+        c.fillStyle='#91a177';c.font='20px Consolas,monospace';c.fillText('Next.js  /  FastAPI  /  PostgreSQL',76,958);
+        c.fillStyle='#33462b';c.fillRect(72,995,1904,2);
       }else{
         c.fillStyle='#ed5038';c.fillRect(76,75,13,39);c.fillRect(99,84,13,30);c.fillRect(122,94,13,20);
         c.fillStyle='#202421';c.font='bold 33px Arial';c.fillText('Веб-студия',164,109);
@@ -166,7 +173,7 @@
       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,drawPage(view));
       gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-      if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+      if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
     }
     const textures=views.map(texture);
     screenshot.addEventListener('load',()=>{views.forEach((view,i)=>{if(view.kind==='sindaris')upload(textures[i],view);});schedule();});
@@ -180,6 +187,7 @@
       canvas.setAttribute('aria-label','Изогнутый 3D-экран: '+views[index].title+'. Перетаскивайте для лёгкого наклона; клавиши влево и вправо переключают проект.');
     }
     function go(viewIndex,direction=1,manual=false) {
+      if(!raf)last=performance.now();
       if(viewIndex===index){
         if(transition&&manual){transition.manual=true;schedule();}
         return;
@@ -208,7 +216,7 @@
     }
     function frame(time){
       raf=0;if(lost||!visible||document.hidden)return;
-      const dt=Math.min((time-last)/1000,.045);last=time;
+      const dt=Math.min((time-last)/1000,1);last=time;
       if(!paused&&!reduced.matches){clock+=dt;if(!drag&&!transition){dwell+=dt;if(dwell>6.5)go((index+1)%views.length,1,false);}}
       if(transition&&(!paused||transition.manual)){
         transition.elapsed+=dt;
@@ -220,8 +228,22 @@
       if((!paused&&!reduced.matches)||drag||(transition&&(!paused||transition.manual))||Math.abs(targetX-currentX)+Math.abs(clamp(targetY,-.38,.26)-currentY)>.0005)schedule();
     }
     function resize(){
-      const box=host.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,box.width<500?1.5:2);
-      canvas.width=Math.round(Math.max(1,box.width*dpr));canvas.height=Math.round(Math.max(1,box.height*dpr));matrix=projection(box.width/Math.max(1,box.height));schedule();
+      const box=host.getBoundingClientRect(),mobile=innerWidth<=700;
+      // Three times the previous hero canvas, in both dimensions. The full-width stage frames it.
+      const baselineWidth=Math.min(1440,box.width*.89)*.98/2.03;
+      const displayWidth=mobile?box.width*1.15:baselineWidth*3;
+      const baselineHeight=innerWidth<=1000?480:Math.max(450,Math.min(640,innerWidth*.42));
+      const displayHeight=mobile?box.width*1.15:baselineHeight*3;
+      canvas.style.width=displayWidth+'px';canvas.style.height=displayHeight+'px';
+      canvas.style.left=(box.width-displayWidth)/2+'px';canvas.style.top=(box.height-displayHeight)/2+'px';
+      const limit=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
+      const desired=mobile?Math.min(2048,Math.ceil(displayWidth*Math.max(2,devicePixelRatio||1))):4096;
+      const renderWidth=Math.min(limit,desired,limit*displayWidth/displayHeight);
+      canvas.width=Math.round(renderWidth);canvas.height=Math.round(renderWidth*displayHeight/displayWidth);
+      canvas.dataset.textureWidth=String(textureWidth);canvas.dataset.textureHeight=String(textureWidth/2);
+      matrix=projection(displayWidth/displayHeight);draw();gl.flush();schedule();
+      const resizeError=gl.getError();
+      if(resizeError!==gl.NO_ERROR)console.warn('Screen resize error:',resizeError);
     }
     buttons.forEach((b,i)=>b.addEventListener('click',()=>go(i,1,true)));
     canvas.addEventListener('pointerdown',e=>{
@@ -241,7 +263,7 @@
       if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const d=e.key==='ArrowRight'?1:-1;go((index+d+views.length)%views.length,d,true);}
       if(e.key==='Home'){e.preventDefault();go(0,-1,true);}
     });
-    window.addEventListener('studio-motion-change',e=>{paused=e.detail.paused;if(transition&&paused)transition.manual=false;schedule();});
+    window.addEventListener('studio-motion-change',e=>{paused=e.detail.paused;last=performance.now();if(transition&&paused)transition.manual=false;schedule();});
     reduced.addEventListener('change',()=>{if(reduced.matches){transition=null;hoverX=hoverY=dragYaw=0;}schedule();});
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{last=performance.now();schedule();}});
     const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){last=performance.now();schedule();}else{cancelAnimationFrame(raf);raf=0;}},{rootMargin:'60px'});
