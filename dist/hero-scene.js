@@ -2,13 +2,18 @@
 (() => {
   'use strict';
   window.createStudioScene = function (host) {
-    const canvas = host.querySelector('canvas'), hint = host.querySelector('#scene-hint');
-    const buttons = Array.from(host.querySelectorAll('[data-scene-view]'));
-    const counter = host.querySelector('[data-scene-counter]');
+    const root=host.closest('.scene-shell')||host;
+    const canvas = host.querySelector('canvas'), hint = root.querySelector('#scene-hint');
+    const buttons = Array.from(root.querySelectorAll('[data-scene-view]'));
+    const counter = root.querySelector('[data-scene-counter]');
+    const title=root.querySelector('[data-scene-name]'),link=root.querySelector('[data-scene-link]');
+    const status=root.querySelector('[data-story-status]'),replay=root.querySelector('[data-story-replay]');
+    const progress=root.querySelector('[data-scene-progress]');
+    const focus=root.querySelector('[data-story-focus]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let gl;
     try { gl = canvas.getContext('webgl', { alpha:true, antialias:false, preserveDrawingBuffer:true, powerPreference:'high-performance' }); } catch (_) {}
-    if (!gl) { hint.textContent = 'Миниатюра страницы'; buttons.forEach(b => b.disabled = true); return; }
+    if (!gl) { hint.textContent = 'Статичная миниатюра проекта'; replay.hidden=true;buttons.forEach(b => b.disabled = true); return; }
     const vertexSource = [
       'attribute vec3 a_position; attribute vec3 a_normal; attribute vec2 a_uv;',
       'uniform mat4 u_projection; uniform float u_span;',
@@ -21,9 +26,32 @@
     ].join('\n');
     const fragmentSource = [
       '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif',
-      'uniform sampler2D u_texture; uniform sampler2D u_next; uniform bool u_textured;',
-      'uniform float u_progress; uniform float u_direction;',
+      'uniform sampler2D u_texture; uniform sampler2D u_next; uniform sampler2D u_empty; uniform bool u_textured;',
+      'uniform float u_progress; uniform float u_direction; uniform float u_storyTime; uniform float u_fromStory; uniform float u_toStory; uniform float u_mobile;',
       'uniform vec3 u_frame; varying vec3 v_normal; varying vec3 v_position; varying vec2 v_uv;',
+      'bool inside(vec2 p,vec4 r){return p.x>=r.x&&p.x<=r.x+r.z&&p.y>=r.y&&p.y<=r.y+r.w;}',
+      'vec3 page(sampler2D tex,vec2 uv,float story){',
+      'if(story<0.5)return texture2D(tex,uv).rgb;',
+      'if(u_mobile>0.5){float pan=smoothstep(3.8,5.3,u_storyTime);float x=mix(212.0,1026.0,pan)+uv.x*810.0;float y=340.0+(1.0-uv.y)*498.0;uv=vec2(x/2048.0,1.0-y/1024.0);}',
+      'vec3 c=texture2D(tex,uv).rgb;',
+      'vec2 p=vec2(uv.x*2048.0,(1.0-uv.y)*1024.0);vec3 bg=vec3(0.0863,0.0980,0.0902);',
+      'if(inside(p,vec4(232.0,474.0,770.0,230.0))){',
+      'float row=clamp(floor((p.y-474.0)/80.0),0.0,2.0);',
+      'float scan=max(0.0,1.0-abs(u_storyTime/0.85-0.5-row))*(1.0-smoothstep(2.3,2.9,u_storyTime));',
+      'c+=vec3(0.08,0.15,0.025)*scan;',
+      'if(p.x>855.0){c=mix(bg,c,smoothstep(row*0.7+0.4,row*0.7+1.0,u_storyTime));}}',
+      'if(inside(p,vec4(1056.0,464.0,752.0,260.0))){',
+      'float row=clamp(floor((p.y-474.0)/80.0),0.0,2.0);',
+      'float show=smoothstep(4.8+row*0.65,5.5+row*0.65,u_storyTime);',
+      'vec3 content=texture2D(tex,uv+vec2(0.0,(1.0-show)*12.0/1024.0)).rgb;',
+      'c=mix(bg,content,show);}',
+      'if(inside(p,vec4(1056.0,520.0,752.0,128.0))){',
+      'vec2 label=vec2((p.x-1056.0)/752.0,1.0-(p.y-520.0)/128.0);vec4 empty=texture2D(u_empty,label);',
+      'c=mix(c,empty.rgb,empty.a*(1.0-smoothstep(4.3,4.9,u_storyTime)));}',
+      'if(inside(p,vec4(1056.0,742.0,752.0,70.0)))c=mix(vec3(0.0667,0.0745,0.0706),c,smoothstep(7.1,7.8,u_storyTime));',
+      'if(inside(p,vec4(630.0,750.0,370.0,54.0)))c=mix(vec3(0.0667,0.0745,0.0706),c,smoothstep(2.2,2.8,u_storyTime));',
+      'if(inside(p,vec4(242.0,748.0,374.0,56.0)))c*=1.0-0.15*max(0.0,1.0-abs(u_storyTime-4.5)*3.5);',
+      'return c;}',
       'void main(){ vec3 n=normalize(v_normal);',
       'vec3 light=normalize(vec3(0.0,4.0,7.0));',
       'vec3 view=normalize(vec3(0.0,0.0,6.6)-v_position);',
@@ -31,11 +59,11 @@
       'float spec=pow(max(dot(n,normalize(light+view)),0.0),68.0);',
       'vec3 color=u_frame;',
       'if(u_textured){float offset=v_uv.x+u_progress*u_direction;',
-      'if(offset<0.0||offset>1.0){color=texture2D(u_next,vec2(offset-u_direction,v_uv.y)).rgb;}',
-      'else{color=texture2D(u_texture,vec2(offset,v_uv.y)).rgb;}',
+      'if(offset<0.0||offset>1.0){color=page(u_next,vec2(offset-u_direction,v_uv.y),u_toStory);}',
+      'else{color=page(u_texture,vec2(offset,v_uv.y),u_fromStory);}',
       'float edge=min(min(v_uv.x,1.0-v_uv.x),min(v_uv.y,1.0-v_uv.y));',
       'color=mix(u_frame,color,smoothstep(0.0025,0.0035,edge));}',
-      'color*=0.86+0.14*diffuse; color+=spec*0.055;',
+      'color*=0.975+0.025*diffuse; color+=spec*0.006;',
       'gl_FragColor=vec4(color,1.0); }'
     ].join('\n');
     function compile(type,source) {
@@ -50,7 +78,7 @@
       gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
       gl.deleteShader(vs);gl.deleteShader(fs);
       if(!gl.getProgramParameter(program,gl.LINK_STATUS)) throw new Error('Unable to link display shader');
-    } catch (_) { hint.textContent='Миниатюра страницы';buttons.forEach(b=>b.disabled=true);return; }
+    } catch (error) { console.warn('Screen shader unavailable:',error.message);hint.textContent='Статичная миниатюра проекта';replay.hidden=true;buttons.forEach(b=>b.disabled=true);return; }
     const identity=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
     function projection(aspect) {
       const f=Math.min(4.0,aspect*3.15),near=.1,far=25;
@@ -79,7 +107,7 @@
     }
     const frontMesh=face();
     const position=gl.getAttribLocation(program,'a_position'),normal=gl.getAttribLocation(program,'a_normal'),uv=gl.getAttribLocation(program,'a_uv');
-    const uniforms={span:gl.getUniformLocation(program,'u_span'),projection:gl.getUniformLocation(program,'u_projection'),texture:gl.getUniformLocation(program,'u_texture'),next:gl.getUniformLocation(program,'u_next'),progress:gl.getUniformLocation(program,'u_progress'),direction:gl.getUniformLocation(program,'u_direction'),textured:gl.getUniformLocation(program,'u_textured'),frame:gl.getUniformLocation(program,'u_frame')};
+    const uniforms={span:gl.getUniformLocation(program,'u_span'),projection:gl.getUniformLocation(program,'u_projection'),texture:gl.getUniformLocation(program,'u_texture'),next:gl.getUniformLocation(program,'u_next'),empty:gl.getUniformLocation(program,'u_empty'),storyTime:gl.getUniformLocation(program,'u_storyTime'),fromStory:gl.getUniformLocation(program,'u_fromStory'),toStory:gl.getUniformLocation(program,'u_toStory'),mobile:gl.getUniformLocation(program,'u_mobile'),progress:gl.getUniformLocation(program,'u_progress'),direction:gl.getUniformLocation(program,'u_direction'),textured:gl.getUniformLocation(program,'u_textured'),frame:gl.getUniformLocation(program,'u_frame')};
     gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
     function bind(mesh) {
       gl.bindBuffer(gl.ARRAY_BUFFER,mesh.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.ib);
@@ -87,77 +115,57 @@
       gl.enableVertexAttribArray(normal);gl.vertexAttribPointer(normal,3,gl.FLOAT,false,32,12);
       gl.enableVertexAttribArray(uv);gl.vertexAttribPointer(uv,2,gl.FLOAT,false,32,24);
     }
-    function rounded(c,x,y,w,h,r,fill,stroke) {
-      c.beginPath();c.roundRect(x,y,w,h,r);
-      if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=2;c.stroke();}
-    }
-    const views=buttons.map(b=>({title:b.dataset.sceneTitle||b.textContent.trim(),kind:b.dataset.sceneKind||'studio'}));
-    if(views.length<2)views.push({title:'SINDARIS',kind:'sindaris'});
-    const screenshot=new Image();
-    screenshot.src='./assets/sindaris/home-detail.jpg';
-    const textureWidth=Math.min(4096,gl.getParameter(gl.MAX_TEXTURE_SIZE)),textureScale=textureWidth/2048;
-    function drawPage(view) {
-      const page=document.createElement('canvas');page.width=textureWidth;page.height=textureWidth/2;
-      const c=page.getContext('2d'),dark=view.kind==='sindaris';
-      c.scale(textureScale,textureScale);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
-      c.fillStyle=dark?'#0b110c':'#f7f5ed';c.fillRect(0,0,2048,1024);
-      if(dark){
-        c.fillStyle='#e1ebd5';c.font='bold 40px Arial';c.fillText('SINDARIS',72,108);
-        c.font='22px Consolas,monospace';c.fillStyle='#91a177';c.fillText('Terminal',310,107);
-        c.font='23px Arial';c.fillText('Логистика / Foxhole',1650,107);
-        c.fillStyle='#33462b';c.fillRect(72,155,1904,2);
-        c.font='bold 82px Arial';c.fillStyle='#edf1e5';c.fillText('Логистика',72,296);
-        c.font='italic 86px Georgia';c.fillStyle='#b5dc68';c.fillText('в одном окне.',555,296);
-        c.fillStyle='#a8b995';c.font='28px Arial';c.fillText('Заказы, снабжение и карта планирования.',76,363);
-        rounded(c,61,415,1926,504,12,'#121a12','#33462b');
-        if(screenshot.complete&&screenshot.naturalWidth)c.drawImage(screenshot,72,427,1904,1904*screenshot.naturalHeight/screenshot.naturalWidth);
-        c.fillStyle='#91a177';c.font='20px Consolas,monospace';c.fillText('Next.js  /  FastAPI  /  PostgreSQL',76,958);
-        c.fillStyle='#33462b';c.fillRect(72,995,1904,2);
-      }else{
-        c.fillStyle='#ed5038';c.fillRect(76,75,13,39);c.fillRect(99,84,13,30);c.fillRect(122,94,13,20);
-        c.fillStyle='#202421';c.font='bold 33px Arial';c.fillText('Веб-студия',164,109);
-        c.font='22px Arial';c.fillStyle='#767d6c';c.fillText('Услуги       Проекты       Контакты',1480,108);
-        c.fillStyle='#d1d6c7';c.fillRect(72,155,1904,2);
-        c.fillStyle='#8b9381';c.font='18px Consolas,monospace';c.fillText('ДИЗАЙН И ВЕБ-РАЗРАБОТКА',80,238);
-        c.fillStyle='#202421';c.font='94px Arial';c.fillText('Сайты и',76,370);c.fillText('веб-сервисы',76,478);
-        c.fillStyle='#ed5038';c.font='italic 108px Georgia';c.fillText('под ключ.',76,600);
-        c.fillStyle='#7b8273';c.font='26px Arial';c.fillText('От первой схемы до работающего продукта.',80,696);
-        c.fillText('Интерфейс, серверная часть и интеграции.',80,738);
-        rounded(c,80,804,330,86,3,'#202421');
-        c.fillStyle='#f7f5ed';c.font='25px Arial';c.fillText('Обсудить проект',116,856);
-        const labels=['Интерфейс','Разработка','Интеграции'];
-        for(let i=0;i<3;i++){
-          const x=1120,y=236+i*225;rounded(c,x,y,836,190,8,i===1?'#e4e9d9':'#eeeee3','#d2d7c7');
-          c.fillStyle=i===1?'#ed5038':'#9da98d';c.font='22px Consolas,monospace';c.fillText('0'+(i+1),x+33,y+49);
-          c.fillStyle='#30392a';c.font='41px Arial';c.fillText(labels[i],x+33,y+111);
-          c.fillStyle='#bac5ac';c.fillRect(x+33,y+147,510,4);c.fillRect(x+33,y+163,340,4);
-        }
-        c.fillStyle='#ced4c3';c.fillRect(72,958,1904,2);
-      }
-      return page;
-    }
+    const views=buttons.map(b=>({title:b.dataset.sceneTitle||b.textContent.trim(),kind:b.dataset.sceneKind||'studio',url:b.dataset.sceneUrl||'#contact'}));
+    const textureWidth=Math.min(4096,gl.getParameter(gl.MAX_TEXTURE_SIZE));
+    const artwork=window.createBillboardArtwork(textureWidth,refreshArtwork);
     const anisotropy=gl.getExtension('EXT_texture_filter_anisotropic')||gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
     function texture(view) {
       const t=gl.createTexture();upload(t,view);return t;
     }
     function upload(t,view){
       gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,drawPage(view));
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,artwork.render(view.kind));
       gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
       if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
     }
     const textures=views.map(texture);
-    screenshot.addEventListener('load',()=>{views.forEach((view,i)=>{if(view.kind==='sindaris')upload(textures[i],view);});needsDraw=true;schedule();});
-    let raf=0,visible=true,paused=document.documentElement.classList.contains('ambient-paused'),lost=false,needsDraw=true;
-    let matrix=identity(),span=1,index=0,transition=null,dwell=0,last=0;
+    function refreshArtwork(){
+      views.forEach((view,i)=>{if(view.kind==='sindaris')upload(textures[i],view);});
+      needsDraw=true;schedule();
+    }
+    const emptyTexture=gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,emptyTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,artwork.empty());
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    let raf=0,visible=true,playable=false,paused=document.documentElement.classList.contains('ambient-paused'),lost=false,needsDraw=true;
+    let matrix=identity(),span=1,index=0,transition=null,dwell=0,last=0,storyTime=reduced.matches?9:0,lastDraw=0,lastStep='',hold=false,mobileView=false;
     const duration=1.25,clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
     function sync(){
       buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
       counter.textContent=String(index+1).padStart(2,'0')+' / '+String(views.length).padStart(2,'0');
       canvas.setAttribute('aria-label','Сферический экран: '+views[index].title+'. Клавиши влево и вправо переключают проект.');
+      const view=views[index],isCase=view.kind==='sindaris';
+      root.dataset.sceneKind=view.kind;title.textContent=view.title;
+      link.href=view.url;link.textContent=isCase?'Открыть проект':'Обсудить проект';
+      link.setAttribute('aria-label',isCase?'Открыть SINDARIS Terminal':'Обсудить проект с веб-студией');
+      if(isCase){link.target='_blank';link.rel='noopener noreferrer';}else{link.removeAttribute('target');link.removeAttribute('rel');}
+      replay.hidden=!isCase||reduced.matches;
+      hint.textContent=isCase?'Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Данные иллюстративные. Управление расположено над экраном.':'Презентация веб-студии. Управление расположено над экраном.';
+      lastStep='';syncStory();
+    }
+    function syncStory(){
+      const isCase=views[index].kind==='sindaris';
+      const step=isCase?(storyTime<2.5?0:storyTime<4.8?1:storyTime<7.8?2:3):'studio';
+      if(String(step)!==lastStep){
+        lastStep=String(step);root.dataset.storyStep=lastStep;
+        status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:'Дизайн и веб-разработка';
+      }
+      progress.style.transform='scaleX('+Math.min(1,dwell/(isCase?14:9))+')';
     }
     function go(viewIndex,direction=1,manual=false) {
+      if(manual)hold=true;
       if(!raf)last=performance.now();
       if(viewIndex===index){
         if(transition&&manual){transition.manual=true;schedule();}
@@ -167,7 +175,7 @@
       if(transition&&viewIndex===transition.from){
         transition={from:transition.to,to:transition.from,elapsed:duration-transition.elapsed,direction:-transition.direction,manual};
       }else transition={from:index,to:viewIndex,elapsed:0,direction,manual};
-      index=viewIndex;dwell=0;needsDraw=true;sync();
+      index=viewIndex;dwell=0;if(views[index].kind==='sindaris')storyTime=reduced.matches||paused?9:0;needsDraw=true;sync();
       if(reduced.matches)transition=null;
       schedule();
     }
@@ -178,23 +186,35 @@
       gl.uniform1f(uniforms.span,span);
       const t=transition?clamp(transition.elapsed/duration,0,1):0,ease=t*t*(3-2*t);
       gl.uniform1f(uniforms.progress,ease);gl.uniform1f(uniforms.direction,transition?transition.direction:1);
+      gl.uniform1f(uniforms.storyTime,storyTime);
+      gl.uniform1f(uniforms.mobile,mobileView?1:0);
+      gl.uniform1f(uniforms.fromStory,views[transition?transition.from:index].kind==='sindaris'?1:0);
+      gl.uniform1f(uniforms.toStory,views[transition?transition.to:index].kind==='sindaris'?1:0);
       gl.uniform1i(uniforms.texture,0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures[transition?transition.from:index]);
       gl.uniform1i(uniforms.next,1);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,textures[transition?transition.to:index]);
-      gl.uniform1i(uniforms.textured,1);gl.uniform3f(uniforms.frame,.55,.59,.50);bind(frontMesh);gl.drawElements(gl.TRIANGLES,frontMesh.count,gl.UNSIGNED_SHORT,0);
+      gl.uniform1i(uniforms.empty,2);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,emptyTexture);
+      gl.uniform1i(uniforms.textured,1);gl.uniform3f(uniforms.frame,.32,.36,.30);bind(frontMesh);gl.drawElements(gl.TRIANGLES,frontMesh.count,gl.UNSIGNED_SHORT,0);
     }
     function frame(time){
       raf=0;if(lost||!visible||document.hidden)return;
       const dt=Math.min((time-last)/1000,1),wasTransition=!!transition;last=time;
-      if(!paused&&!reduced.matches&&!transition){dwell+=dt;if(dwell>6.5)go((index+1)%views.length,1,false);}
+      let storyMoving=false;
+      if(!paused&&!reduced.matches&&playable&&!transition){
+        dwell+=dt;
+        if(views[index].kind==='sindaris'&&storyTime<9){storyTime=Math.min(9,storyTime+dt);storyMoving=true;}
+        if(!hold&&dwell>(views[index].kind==='sindaris'?14:9))go((index+1)%views.length,1,false);
+      }
       if(transition&&(!paused||transition.manual)){
         transition.elapsed+=dt;
         if(transition.elapsed>=duration)transition=null;
       }
-      if(needsDraw||transition||wasTransition){draw();needsDraw=false;}
-      if((!paused&&!reduced.matches)||(transition&&(!paused||transition.manual)))schedule();
+      syncStory();
+      if(needsDraw||transition||wasTransition||(storyMoving&&time-lastDraw>=1000/30)){draw();needsDraw=false;lastDraw=time;}
+      if((!paused&&!reduced.matches&&playable)||(transition&&(!paused||transition.manual)))schedule();
     }
     function resize(){
       const box=host.getBoundingClientRect(),mobile=innerWidth<=700;
+      mobileView=mobile;
       // Three times the previous hero canvas, in both dimensions. The full-width stage frames it.
       const baselineWidth=Math.min(1440,box.width*.89)*.98/2.03;
       const displayWidth=mobile?box.width*1.15:Math.max(box.width,baselineWidth*3);
@@ -205,25 +225,43 @@
       const limit=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
       const desired=mobile?Math.min(2048,Math.ceil(displayWidth*Math.max(2,devicePixelRatio||1))):4096;
       const renderWidth=Math.min(limit,desired,limit*displayWidth/displayHeight);
-      canvas.width=Math.round(renderWidth);canvas.height=Math.round(renderWidth*displayHeight/displayWidth);
+      canvas.width=Math.round(renderWidth);canvas.height=Math.round(Math.min(4096,renderWidth*displayHeight/displayWidth));
       canvas.dataset.textureWidth=String(textureWidth);canvas.dataset.textureHeight=String(textureWidth/2);
       span=box.width/displayWidth;matrix=projection(displayWidth/displayHeight);draw();gl.flush();schedule();
       const resizeError=gl.getError();
       if(resizeError!==gl.NO_ERROR)console.warn('Screen resize error:',resizeError);
     }
     buttons.forEach((b,i)=>b.addEventListener('click',()=>go(i,1,true)));
+    replay.addEventListener('click',()=>{
+      if(reduced.matches)return;
+      hold=true;
+      const caseIndex=views.findIndex(view=>view.kind==='sindaris');
+      if(index!==caseIndex)go(caseIndex,1,true);
+      storyTime=dwell=0;needsDraw=true;last=performance.now();syncStory();
+      const blocked=document.querySelector('.site-header').getBoundingClientRect().height+root.querySelector('.scene-toolbar').getBoundingClientRect().height;
+      window.scrollTo({top:Math.max(0,scrollY+focus.getBoundingClientRect().top-(innerHeight+blocked)/2),behavior:'smooth'});
+      window.dispatchEvent(new CustomEvent('studio-motion-play'));schedule();
+    });
+    root.querySelector('.scene-toolbar').addEventListener('focusin',()=>{hold=true;});
     canvas.addEventListener('keydown',e=>{
       if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const d=e.key==='ArrowRight'?1:-1;go((index+d+views.length)%views.length,d,true);}
       if(e.key==='Home'){e.preventDefault();go(0,-1,true);}
     });
     window.addEventListener('studio-motion-change',e=>{paused=e.detail.paused;last=performance.now();if(transition&&paused)transition.manual=false;schedule();});
-    reduced.addEventListener('change',()=>{if(reduced.matches)transition=null;needsDraw=true;schedule();});
+    reduced.addEventListener('change',()=>{if(reduced.matches){transition=null;storyTime=9;}needsDraw=true;sync();schedule();});
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{last=performance.now();schedule();}});
     const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){last=performance.now();schedule();}else{cancelAnimationFrame(raf);raf=0;}},{rootMargin:'60px'});
+    let playbackObserver;
+    function observePlayback(){
+      if(playbackObserver)playbackObserver.disconnect();
+      const cut=Math.round(innerHeight*.25);
+      playbackObserver=new IntersectionObserver(entries=>{playable=entries[0].isIntersecting;if(playable){last=performance.now();schedule();}},{rootMargin:'-'+cut+'px 0px -'+cut+'px 0px'});
+      playbackObserver.observe(focus);
+    }
+    observePlayback();window.addEventListener('resize',observePlayback);
     observer.observe(host);const ro=new ResizeObserver(resize);ro.observe(host);
-    canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;cancelAnimationFrame(raf);host.classList.remove('is-rendered');hint.textContent='Миниатюра страницы';buttons.forEach(b=>b.disabled=true);});
-    hint.textContent='Выберите проект';
+    canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;cancelAnimationFrame(raf);host.classList.remove('is-rendered');hint.textContent='Статичная миниатюра проекта';replay.hidden=true;buttons.forEach(b=>b.disabled=true);});
     sync();resize();host.classList.add('is-rendered');schedule();
-    window.addEventListener('pagehide',e=>{if(e.persisted)return;cancelAnimationFrame(raf);observer.disconnect();ro.disconnect();gl.deleteBuffer(frontMesh.vb);gl.deleteBuffer(frontMesh.ib);textures.forEach(t=>gl.deleteTexture(t));gl.deleteProgram(program);},{once:true});
+    window.addEventListener('pagehide',e=>{if(e.persisted)return;cancelAnimationFrame(raf);observer.disconnect();playbackObserver.disconnect();window.removeEventListener('resize',observePlayback);ro.disconnect();gl.deleteBuffer(frontMesh.vb);gl.deleteBuffer(frontMesh.ib);textures.forEach(t=>gl.deleteTexture(t));gl.deleteTexture(emptyTexture);gl.deleteProgram(program);},{once:true});
   };
 })();

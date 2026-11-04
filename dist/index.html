@@ -7,6 +7,7 @@
   <meta name="description" content="Разработка сайтов и веб-сервисов для бизнеса: интерфейс, серверная часть и интеграции." />
   <title>Веб-студия — сайты и веб-сервисы</title>
   <link rel="stylesheet" href="./styles.css" />
+  <script src="./billboard-artwork.js" defer></script>
   <script src="./hero-scene.js" defer></script>
   <script src="./script.js" defer></script>
 </head>
@@ -36,14 +37,26 @@
         <p class="hero-intro" data-enter>От первой схемы до работающего продукта. Продумываем интерфейс, разрабатываем серверную часть и связываем всё, что нужно бизнесу.</p>
         <div class="hero-actions" data-enter><a class="button button-dark" data-magnetic href="#contact"><span>Обсудить задачу</span></a><a class="text-link" href="#work">Смотреть проекты</a></div>
       </div>
-      <div class="hero-art" id="showcase" data-scene>
-        <div class="scene-grid" aria-hidden="true"></div>
-        <div class="scene-topline mono"><span>Экран / Проекты</span><span data-scene-counter>01 / 02</span></div>
-        <div class="scene-fallback scene-page-fallback" aria-hidden="true"><small>Веб-студия</small><strong>Сайты<br />и веб-сервисы<br /><em>под ключ.</em></strong><span></span><span></span><span></span></div>
-        <canvas class="hero-canvas" tabindex="0" role="img" aria-label="Сферический экран. Выберите проект кнопками или клавишами влево и вправо." aria-describedby="scene-hint"></canvas>
-        <div class="scene-shadow" aria-hidden="true"></div>
-        <p class="scene-drag-note" id="scene-hint">Выберите проект</p>
-        <div class="scene-bottom"><div class="scene-views" role="group" aria-label="Проект на 3D-экране"><button type="button" data-scene-view="0" data-scene-kind="studio" data-scene-title="Сайт студии" aria-pressed="true">Студия</button><button type="button" data-scene-view="1" data-scene-kind="sindaris" data-scene-title="SINDARIS Terminal" aria-pressed="false">SINDARIS</button></div><button type="button" class="scene-toggle" aria-label="Приостановить анимацию" aria-pressed="false">Пауза</button></div>
+      <div class="scene-shell" id="showcase" data-scene-kind="sindaris">
+        <div class="scene-toolbar" role="group" aria-label="Управление витриной">
+          <div class="scene-toolbar-inner">
+            <div class="scene-project-info"><strong data-scene-name>SINDARIS Terminal</strong><p id="scene-status" data-story-status>Пример работы · Сверяем склад</p></div>
+            <div class="scene-toolbar-controls">
+              <span class="scene-counter mono" data-scene-counter>01 / 02</span>
+              <div class="scene-views" role="group" aria-label="Проект на 3D-экране"><button type="button" data-scene-view="0" data-scene-kind="sindaris" data-scene-title="SINDARIS Terminal" data-scene-url="https://sandalis-web-v2-0.onrender.com/" aria-pressed="true">SINDARIS</button><button type="button" data-scene-view="1" data-scene-kind="studio" data-scene-title="Веб-студия" data-scene-url="#contact" aria-pressed="false">Студия</button></div>
+              <button type="button" class="scene-replay" data-story-replay aria-label="Повторить сценарий SINDARIS">Повторить</button>
+              <button type="button" class="scene-toggle" aria-label="Приостановить анимацию" aria-pressed="false">Пауза</button>
+            </div>
+            <a class="scene-project-link" data-scene-link href="https://sandalis-web-v2-0.onrender.com/" target="_blank" rel="noopener noreferrer">Открыть проект</a>
+          </div>
+          <div class="scene-progress" aria-hidden="true"><span data-scene-progress></span></div>
+        </div>
+        <div class="hero-art" data-scene>
+          <span class="scene-play-focus" data-story-focus aria-hidden="true"></span>
+          <div class="scene-fallback scene-page-fallback" aria-hidden="true"><small>SINDARIS Terminal</small><strong>От склада<br />к готовому<br /><em>заказу.</em></strong><span></span><span></span><span></span></div>
+          <canvas class="hero-canvas" tabindex="0" role="img" aria-label="Сферический экран. Выберите проект кнопками или клавишами влево и вправо." aria-describedby="scene-hint scene-status"></canvas>
+          <p class="scene-hint" id="scene-hint">Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Управление расположено над экраном.</p>
+        </div>
       </div>
       <div class="hero-foot mono"><span>Интерфейс. Логика. Запуск.</span><span>Листайте дальше</span></div>
     </section>

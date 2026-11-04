@@ -5,6 +5,7 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
   const header = $('.site-header'), menu = $('.menu-toggle'), nav = $('.main-nav');
+  if('ResizeObserver' in window)new ResizeObserver(()=>document.documentElement.style.setProperty('--site-header-height',header.getBoundingClientRect().height+'px')).observe(header);
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 
   if (!reduced.matches && 'IntersectionObserver' in window) document.documentElement.classList.add('motion-ready');
@@ -20,6 +21,7 @@
     window.dispatchEvent(new CustomEvent('studio-motion-change', { detail: { paused } }));
   }
   motionToggle.addEventListener('click', () => setAmbientPaused(!ambientPaused));
+  window.addEventListener('studio-motion-play',()=>setAmbientPaused(false));
   reduced.addEventListener('change', () => {
     document.documentElement.classList.toggle('motion-ready', !reduced.matches && 'IntersectionObserver' in window);
     setAmbientPaused(reduced.matches);
