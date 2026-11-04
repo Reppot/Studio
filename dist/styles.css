@@ -59,7 +59,7 @@ h1 { font-size: clamp(72px, 7.35vw, 120px); line-height: .97; font-weight: 500; 
 .hero-canvas { display: block; position: absolute; width: 100%; height: 100%; inset: 0; z-index: 2; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity .65s; }
 .hero-canvas.is-dragging { cursor: grabbing; }.hero-art.is-rendered .hero-canvas { opacity: 1; }
 .scene-topline, .scene-bottom { position: absolute; left: 6%; right: 6%; display: flex; align-items: center; justify-content: space-between; z-index: 3; color: #92948a; font-size: 8px; }
-.scene-topline { top: 2%; }.scene-bottom { bottom: 3%; font: 10px var(--mono); }
+.scene-topline { top: 2%; }.scene-bottom { bottom: 0; font: 10px var(--mono); }
 .scene-toggle { padding: 8px 10px; border: 1px solid var(--line); background: transparent; font-size: 10px; transition: border-color .2s; }.scene-toggle:hover { border-color: var(--ink); }
 .scene-shadow { position: absolute; bottom: 13%; left: 22%; right: 16%; height: 16px; background: #554f4526; filter: blur(13px); border-radius: 50%; }
 .scene-fallback { position: absolute; width: 62%; aspect-ratio: 1; left: 20%; top: 20%; transition: opacity .3s; }
