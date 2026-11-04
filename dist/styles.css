@@ -219,16 +219,16 @@ summary::-webkit-details-marker { display: none; }summary::marker { content: "";
 @media(max-width:700px){.preview-top{padding:15px 16px}.preview-top strong{font-size:13px}.preview-top strong>span{font-size:8px}.preview-app-label{font-size:7px}.preview-bottom{padding:14px 16px}.preview-steps{gap:10px;font-size:7px}.preview-motion-label{display:none}.preview-stage{margin:12px 9px 0}.preview-focus{border-radius:9px}.preview-pulse{width:14px;height:14px;margin:-7px 0 0 -7px}.case-thumbnail-title h3{font-size:18px}.case-thumbnail-description{font-size:12px}.case-thumbnail-stack{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.case-thumbnail .preview-focus,.case-thumbnail .preview-pulse{animation:none!important;opacity:0!important}.case-thumbnail-link{transition:none}}
 
-/* The curved screen keeps the same keyboard and pause controls as the original scene. */
+/* Wide media facade and its controls. */
 .scene-drag-note{position:absolute;bottom:10%;left:6%;right:6%;text-align:center;z-index:3;pointer-events:none;font:9px var(--mono);color:#94998a}
 .scene-views{display:flex;gap:4px;align-items:center}
 .scene-views button{background:transparent;border:1px solid transparent;padding:8px 11px;font:10px var(--mono);color:#969e8b;transition:color .25s,border-color .25s}
 .scene-views button[aria-pressed=true]{border-color:#bfc6b3;color:#3b4532}
 .scene-views button:hover{color:var(--accent)}
 .scene-views button:disabled{cursor:default;opacity:.5}
-.scene-page-fallback{width:68%;aspect-ratio:1;left:16%;top:14%;padding:7%;border:1px solid #c5c9bb;border-radius:5px;background:#f7f5ed;box-shadow:10px 15px 0 #d3d8c9,15px 27px 35px #1d2d171c;transform:perspective(900px) rotateY(-14deg) rotateX(7deg) rotateZ(-3deg)}
-.scene-page-fallback>small{display:block;font:10px var(--mono);color:#7b8570;margin-bottom:22px}
-.scene-page-fallback>strong{display:block;font-size:clamp(20px,2.6vw,39px);line-height:1;letter-spacing:-.06em;font-weight:500}
+.scene-page-fallback{width:90%;aspect-ratio:2;left:5%;top:27%;padding:4%;border:1px solid #c5c9bb;border-radius:5px;background:#f7f5ed;box-shadow:6px 9px 0 #d3d8c9,12px 20px 30px #1d2d171c;transform:perspective(900px) rotateY(-8deg) rotateX(6deg) rotateZ(-1deg)}
+.scene-page-fallback>small{display:block;font:10px var(--mono);color:#7b8570;margin-bottom:12px}
+.scene-page-fallback>strong{display:block;font-size:clamp(20px,2.2vw,32px);line-height:1;letter-spacing:-.06em;font-weight:500}
 .scene-page-fallback em{font-family:Georgia,serif;color:var(--accent);font-weight:400}
 .scene-page-fallback>span{display:inline-block;width:26%;height:40px;margin:20px 5px 0 0;background:#e3e8d9;border:1px solid #d3d9c8}
-@media(max-width:700px){.scene-views button{font-size:9px;padding:7px 9px;min-height:38px}.scene-toggle{min-height:38px}.scene-drag-note{bottom:12%;font-size:8px}.scene-page-fallback>strong{font-size:29px}.scene-page-fallback>small{font-size:8px;margin-bottom:17px}.scene-page-fallback>span{height:25px;margin-top:14px}}
+@media(max-width:700px){.scene-views button{font-size:9px;padding:7px 9px;min-height:38px}.scene-toggle{min-height:38px}.scene-drag-note{bottom:12%;font-size:8px}.scene-page-fallback>strong{font-size:22px}.scene-page-fallback>small{font-size:8px;margin-bottom:10px}.scene-page-fallback>span{height:17px;margin-top:8px}}
