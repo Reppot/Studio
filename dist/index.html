@@ -74,8 +74,21 @@
     </section>
 
     <section class="work section-wrap" id="work">
-      <div class="section-heading"><div><p class="eyebrow" data-reveal>02 / Портфолио</p><h2 data-reveal>Проекты<br /><em>в деталях.</em></h2></div><p class="section-aside" data-reveal>Задачи, решения и техническая сторона проектов. Первый кейс — платформа управления логистикой для Foxhole.</p></div>
-      <article class="featured-case" data-reveal><a class="case-cover-link" href="./sindaris.html" aria-label="Открыть кейс SINDARIS Terminal"><div class="screen-collage" data-screen-tilt><span class="collage-label mono">SINDARIS / рабочий интерфейс</span><div class="collage-orbit" aria-hidden="true"></div><img class="collage-main" src="./assets/sindaris/management.jpg" width="1590" height="910" loading="lazy" alt="SINDARIS: управление кланом, роли и доступ"><img class="collage-detail" src="./assets/sindaris/production.jpg" width="1590" height="910" loading="lazy" alt="SINDARIS: производственный калькулятор MPF"><span class="collage-footer mono">Управление · Производство · Планирование</span><span class="collage-open">Смотреть кейс</span></div></a><div class="featured-case-copy"><p class="eyebrow">Веб-приложение / Foxhole</p><h3>SINDARIS<br><em>Terminal.</em></h3><p>Платформа для клановой логистики: заявки, склады, таймеры резервов и расчёт производства в одном интерфейсе.</p><div class="service-tags"><span>Next.js</span><span>FastAPI</span><span>PostgreSQL</span></div><a class="text-link" href="./sindaris.html">Разбор проекта</a></div></article>
+      <div class="section-heading"><div><p class="eyebrow" data-reveal>02 / Портфолио</p><h2 data-reveal>Проекты<br /><em>в деталях.</em></h2></div><p class="section-aside" data-reveal>SINDARIS Terminal — платформа логистики и управления для сообщества Foxhole.</p></div>
+      <article class="case-thumbnail" data-case-preview>
+        <a class="case-thumbnail-link" href="https://sandalis-web-v2-0.onrender.com/" target="_blank" rel="noopener noreferrer" aria-label="Открыть SINDARIS Terminal">
+          <div class="preview-top"><strong>SINDARIS<span>Terminal</span></strong><span class="preview-app-label">Веб-приложение</span></div>
+          <div class="preview-stage">
+            <img src="./assets/sindaris/home.png" width="1002" height="480" alt="Главная SINDARIS: заказы, пирамида снабжения и планирование" loading="lazy" decoding="async">
+            <div class="preview-focus" aria-hidden="true"></div>
+            <i class="preview-pulse pulse-orders" aria-hidden="true"></i><i class="preview-pulse pulse-supply" aria-hidden="true"></i><i class="preview-pulse pulse-planning" aria-hidden="true"></i>
+          </div>
+          <div class="preview-bottom" aria-hidden="true"><span class="preview-steps"><span>Заказы</span><span>Снабжение</span><span>Планирование</span></span><span class="preview-motion-label">Интерактивное превью</span></div>
+        </a>
+        <div class="case-thumbnail-title"><h3><a href="https://sandalis-web-v2-0.onrender.com/" target="_blank" rel="noopener noreferrer">SINDARIS Terminal</a></h3><button class="preview-pause" type="button" aria-label="Приостановить анимацию карточки" aria-pressed="false">Пауза</button></div>
+        <p class="case-thumbnail-description">Логистика игрового клана: заявки, снабжение, производственные расчёты и карта планирования.</p>
+        <p class="case-thumbnail-stack">Next.js &nbsp; / &nbsp; FastAPI &nbsp; / &nbsp; PostgreSQL</p>
+      </article>
     </section>
 
     <section class="process" id="process">
@@ -129,6 +142,6 @@
     </section>
   </main>
   <footer class="footer section-wrap"><a class="wordmark" href="#top"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Веб-студия</span></a><span class="mono">Сайты · Веб-сервисы · Интеграции</span><span class="mono">2026</span></footer>
-  <script src="./case-gallery.js" defer></script>
+  <script src="./case-preview.js" defer></script>
 </body>
 </html>
