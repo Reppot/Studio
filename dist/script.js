@@ -150,5 +150,5 @@
   });
 
   try { if (window.createStudioScene) window.createStudioScene($('[data-scene]')); }
-  catch (_) { $('#scene-hint').textContent = 'Форма и функция'; }
+  catch (_) { $('#scene-hint').textContent = 'Миниатюра страницы'; }
 })();
