@@ -264,9 +264,7 @@ summary::-webkit-details-marker { display: none; }summary::marker { content: "";
 .furniture-case-media img + img{opacity:0;transition:opacity .6s ease}
 .furniture-case-link:is(:hover,:focus-visible) .furniture-case-media img + img{opacity:1}
 .ambient-paused .furniture-case-media img + img{transition:none}
-.furniture-case-wordmark{position:absolute;left:5%;top:7%;color:#faf3e9;font:bold clamp(34px,8vw,108px)/.85 Georgia,serif;letter-spacing:-.085em}
 .furniture-case-info{display:flex;justify-content:space-between;align-items:end;gap:20px;padding:clamp(20px,4vw,50px)}
-.furniture-case-info .eyebrow{color:#695039}
 .furniture-case-info h3{font:clamp(38px,5.4vw,80px)/1 Georgia,serif;letter-spacing:-.06em;margin:.12em 0}
 .furniture-case-info p:last-child{font-size:14px}
 .furniture-case-info .text-link{flex:none}

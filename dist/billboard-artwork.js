@@ -93,8 +93,7 @@
       shade.addColorStop(.82,'rgba(26,20,15,0)');
       shade.addColorStop(1,'rgba(26,20,15,.76)');
       c.fillStyle=shade;c.fillRect(0,0,2048,1024);
-      c.fillStyle='#fff4e4';c.font='bold 114px Georgia';c.fillText('слой.',260,221);
-      text(c,'Диван М01',268,278,42,'#fff4e4');
+      c.fillStyle='#fff4e4';c.font='bold 92px Georgia';c.fillText('Конфигуратор',260,221);
       text(c,corner?'Угловая компоновка':'Прямая компоновка',268,952,37,'#fff4e4','600');
       text(c,corner?'280 × 170 см':'280 × 100 см',1780,952,37,'#fff4e4','400','right');
     }

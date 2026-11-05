@@ -159,10 +159,11 @@
       const view=views[index],isCase=view.kind==='sindaris';
       root.dataset.sceneKind=view.kind;title.textContent=view.title;
       link.href=view.url;
-      link.setAttribute('aria-label','Открыть проект '+view.title);
+      link.textContent=isCase?'Открыть проект':'Попробовать';
+      link.setAttribute('aria-label',isCase?'Открыть проект '+view.title:'Попробовать конфигуратор дивана');
       if(isCase){link.target='_blank';link.rel='noopener noreferrer';}else{link.removeAttribute('target');link.removeAttribute('rel');}
       replay.hidden=reduced.matches;
-      replay.setAttribute('aria-label','Повторить демонстрацию проекта '+view.title);
+      replay.setAttribute('aria-label',isCase?'Повторить демонстрацию проекта '+view.title:'Повторить демонстрацию конфигуратора дивана');
       hint.textContent=isCase?'Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Данные иллюстративные. Управление расположено над экраном.':'Демонстрация двух компоновок модульного дивана. Управление расположено над экраном.';
       lastStep='';syncStory();
     }
@@ -171,7 +172,7 @@
       const step=isCase?(storyTime<2.5?0:storyTime<4.8?1:storyTime<7.8?2:3):(storyTime<3.5?0:1);
       if(String(step)!==lastStep){
         lastStep=String(step);root.dataset.storyStep=lastStep;
-        status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:'Диван М01 · '+['Прямая компоновка','Угловая компоновка'][step];
+        status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:['Прямая компоновка','Угловая компоновка'][step];
       }
       progress.style.transform='scaleX('+Math.min(1,dwell/dwellLimit())+')';
     }

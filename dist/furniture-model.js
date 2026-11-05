@@ -56,8 +56,9 @@ export function createModel(canvas, initial, onContextChange) {
   scene.add(ground);
 
   const bumpMap = weave();
-  const cloth = new THREE.MeshStandardMaterial({ color: initial.color, roughness: .94, bumpMap, bumpScale: .013 });
+  const cloth = new THREE.MeshStandardMaterial({ color: '#cbb89d', roughness: .94, bumpMap, bumpScale: .013 });
   const baseCloth = cloth.clone();
+  baseCloth.color.multiplyScalar(.85);
   const feet = new THREE.MeshStandardMaterial({ color: '#514335', roughness: .82 });
 
   function cushion(width, height, depth, radius, material, x, y, z) {
@@ -91,7 +92,6 @@ export function createModel(canvas, initial, onContextChange) {
   let angle = .49;
   let view = 'perspective';
   let drag = null;
-  const targetColor = new THREE.Color(initial.color);
   const focus = new THREE.Vector3();
   const near = (value, wanted) => Math.abs(value - wanted) < .003;
   const animate = (value, wanted, amount) => near(value, wanted) ? wanted : value + (wanted - value) * amount;
@@ -99,9 +99,7 @@ export function createModel(canvas, initial, onContextChange) {
   function layoutModel(amount) {
     const tall = target.height === 99 ? 1 : 0;
     elevation = animate(elevation, tall, amount);
-    cloth.color.lerp(targetColor, amount);
-    baseCloth.color.copy(cloth.color).multiplyScalar(.85);
-    let moving = elevation !== tall || Math.abs(cloth.color.r - targetColor.r) + Math.abs(cloth.color.g - targetColor.g) + Math.abs(cloth.color.b - targetColor.b) > .004;
+    let moving = elevation !== tall;
     for (const [i, module] of modules.entries()) {
       const chaise = target.chaise === i ? 1 : 0;
       const unfolded = target.open && !chaise ? 1 : 0;
@@ -210,7 +208,6 @@ export function createModel(canvas, initial, onContextChange) {
   return {
     update(configuration) {
       target = configuration;
-      targetColor.set(configuration.color);
       schedule();
     },
     view(kind) {

@@ -4,20 +4,13 @@ const bedSpec = document.querySelector('[data-bed-spec]');
 const plan = document.querySelector('[data-plan]');
 const stage = document.querySelector('[data-model-stage]');
 const canvas = stage.querySelector('canvas');
-const modelLabel = stage.querySelector('[data-model-label]');
 const viewToolbar = stage.querySelector('[data-view-toolbar]');
 const viewButtons = [...viewToolbar.querySelectorAll('[data-view]')];
-const orbitHint = stage.querySelector('[data-orbit-hint]');
-const fabrics = {
-  oat: '#cbb89d',
-  olive: '#758163',
-  clay: '#a96048'
-};
 let state;
 let model;
 
 function drawPlan() {
-  const { chaise, open, height, depth, color } = state;
+  const { chaise, open, height, depth } = state;
   const rect = (x, y, w, h, r = 5) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
   const seats = [56, 139, 222].map((x, i) => {
     const lounge = chaise === i;
@@ -28,7 +21,7 @@ function drawPlan() {
   const bottom = depth === 170 ? 202 : 132;
   plan.setAttribute('aria-label', `Вид сверху. Габариты 280 × ${depth} × ${height} см.`);
   plan.innerHTML = `
-    <g stroke="currentColor" fill="${color}" stroke-width="1.2">
+    <g stroke="currentColor" fill="#cbb89d" stroke-width="1.2">
       ${seats}${rect(40, 48, 16, 84)}${rect(304, 48, 16, 84)}
     </g>
     <g stroke="currentColor" fill="none" stroke-width="1" opacity=".55">
@@ -41,12 +34,12 @@ function drawPlan() {
 }
 
 function update() {
-  const { layout, mode, back, fabric } = Object.fromEntries(new FormData(form));
+  const { layout, mode, back } = Object.fromEntries(new FormData(form));
   const chaise = layout === 'left' ? 0 : layout === 'right' ? 2 : -1;
   const open = mode === 'open';
   const height = back === 'high' ? 99 : 78;
   const depth = open || chaise >= 0 ? 170 : 100;
-  state = { chaise, open, height, depth, color: fabrics[fabric] };
+  state = { chaise, open, height, depth };
   const dimensions = `280 × ${depth} × ${height}`;
   if (size.textContent !== dimensions) size.textContent = dimensions;
   bedSpec.hidden = !open;
@@ -58,7 +51,6 @@ function showModel(ready) {
   canvas.hidden = !ready;
   plan.toggleAttribute('hidden', ready);
   viewToolbar.hidden = !ready;
-  modelLabel.textContent = ready ? '3D-модель' : 'Вид сверху';
 }
 
 form.addEventListener('change', update);
@@ -73,7 +65,6 @@ import('./furniture-model.js').then(({ createModel }) => {
     button.addEventListener('click', () => {
       const view = button.dataset.view;
       viewButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
-      orbitHint.hidden = view !== 'perspective';
       model.view(view);
     });
   }

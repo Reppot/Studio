@@ -4,85 +4,88 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f1e8">
-  <meta name="description" content="Слой. Концепт мебельной студии с интерактивной примеркой модульного дивана М01.">
-  <title>Диван М01 — Слой</title>
+  <meta name="description" content="Разрабатываем сайты и интерактивные конфигураторы для мебельных и интерьерных студий. Попробуйте собрать модульный диван.">
+  <title>Сайты для мебельных и интерьерных студий</title>
   <link rel="stylesheet" href="./furniture.css">
   <script type="importmap">{"imports":{"three":"./assets/vendor/three/three.module.min.js"}}</script>
   <script type="module" src="./furniture.js"></script>
 </head>
 <body>
   <header class="masthead">
-    <div class="brand"><span>слой.</span><small>Мебельная студия</small></div>
-    <a href="./index.html#work">К проектам веб-студии</a>
+    <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Веб-студия</a>
+    <nav class="masthead-nav" aria-label="Навигация"><a href="./index.html#work">К проектам</a><a href="./index.html#contact">Обсудить сайт</a></nav>
   </header>
   <main class="product">
-    <div class="intro">
-      <div><p class="label">Коллекция 01 / Мягкая мебель</p><h1>Диван <em>М01</em></h1></div>
-      <p class="intro-copy">Соберите диван для своей комнаты. Выберите сторону шезлонга, высоту спинки и цвет букле. Проверьте, сколько места займёт разложенный диван.</p>
-    </div>
-    <section class="configurator" aria-labelledby="configuration-title">
-      <div class="preview">
-        <div class="model-stage" data-model-stage>
-          <div class="stage-top"><span>М01 / Конфигуратор</span><span data-model-label>Чертёж</span></div>
-          <canvas class="model-canvas" aria-hidden="true" hidden></canvas>
-          <svg class="plan" data-plan viewBox="0 0 360 252" role="img" aria-label="Вид дивана сверху"></svg>
-          <div class="stage-bottom" data-view-toolbar hidden>
-            <div class="views" role="group" aria-label="Ракурс модели">
-              <button type="button" data-view="perspective" aria-pressed="true">Объём</button>
-              <button type="button" data-view="top" aria-pressed="false">Сверху</button>
-              <button type="button" data-view="side" aria-pressed="false">Сбоку</button>
-            </div>
-            <span data-orbit-hint>Потяните модель для поворота</span>
-          </div>
-        </div>
-        <div class="specification" aria-live="polite" aria-atomic="true">
-          <div>
-            <p class="label">Ширина × глубина × высота</p>
-            <p class="dimensions"><span data-size>280 × 100 × 78</span> <small>см</small></p>
-          </div>
-          <div data-bed-spec hidden>
-            <p class="label">Спальное место</p>
-            <p class="dimensions">248 × 145 <small>см</small></p>
-          </div>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-content">
+        <h1 id="page-title">Сайты для мебельных<br class="title-break"> и <em>интерьерных студий</em></h1>
+        <p class="intro-copy">Разрабатываем каталоги с интерактивными конфигураторами, чтобы покупатели могли подобрать мебель под свою комнату.</p>
+        <div class="intro-actions">
+          <a class="action" href="#configurator">Попробовать конфигуратор</a>
+          <a href="./index.html#contact">Обсудить сайт</a>
         </div>
       </div>
-      <form class="configuration">
-        <h2 id="configuration-title">Настройки</h2>
-        <fieldset class="choices">
-          <legend class="label">Компоновка</legend>
-          <label><input type="radio" name="layout" value="straight" checked><span>Прямая</span></label>
-          <label><input type="radio" name="layout" value="left"><span>Шезлонг слева</span></label>
-          <label><input type="radio" name="layout" value="right"><span>Шезлонг справа</span></label>
-        </fieldset>
-        <fieldset class="choices">
-          <legend class="label">Спальное место</legend>
-          <label><input type="radio" name="mode" value="seated" checked><span>Сложен</span></label>
-          <label><input type="radio" name="mode" value="open"><span>Разложен</span></label>
-        </fieldset>
-        <fieldset class="choices">
-          <legend class="label">Высота спинки</legend>
-          <label><input type="radio" name="back" value="low" checked><span>78 см</span></label>
-          <label><input type="radio" name="back" value="high"><span>99 см</span></label>
-        </fieldset>
-        <fieldset class="choices">
-          <legend class="label">Обивка / букле</legend>
-          <label><input type="radio" name="fabric" value="oat" checked><span><i class="swatch oat"></i>Овсяный</span></label>
-          <label><input type="radio" name="fabric" value="olive"><span><i class="swatch olive"></i>Олива</span></label>
-          <label><input type="radio" name="fabric" value="clay"><span><i class="swatch clay"></i>Глина</span></label>
-        </fieldset>
-      </form>
+      <figure class="intro-image">
+        <img src="./assets/furniture/corner.jpg" width="1774" height="887" alt="Диван с шезлонгом в интерьере" fetchpriority="high">
+        <span class="fabric-detail" aria-hidden="true"></span>
+      </figure>
     </section>
-    <section class="interior" aria-labelledby="interior-title">
-      <div class="interior-heading">
-        <h2 id="interior-title">В интерьере</h2>
-        <p>Две компоновки в овсяном букле.</p>
+    <section class="demo" id="configurator" aria-labelledby="demo-title">
+      <h2 id="demo-title">Пример конфигуратора</h2>
+      <div class="configurator">
+        <div class="preview">
+          <div class="model-stage" data-model-stage>
+            <canvas class="model-canvas" aria-hidden="true" hidden></canvas>
+            <svg class="plan" data-plan viewBox="0 0 360 252" role="img" aria-label="Вид дивана сверху"></svg>
+            <div class="stage-bottom" data-view-toolbar hidden>
+              <div class="views" role="group" aria-label="Ракурс модели">
+                <button type="button" data-view="perspective" aria-pressed="true">Объём</button>
+                <button type="button" data-view="top" aria-pressed="false">Сверху</button>
+                <button type="button" data-view="side" aria-pressed="false">Сбоку</button>
+              </div>
+            </div>
+          </div>
+          <div class="specification" aria-live="polite" aria-atomic="true">
+            <div>
+              <p class="label">Ширина × глубина × высота</p>
+              <p class="dimensions"><span data-size>280 × 100 × 78</span> <small>см</small></p>
+            </div>
+            <div data-bed-spec hidden>
+              <p class="label">Спальное место</p>
+              <p class="dimensions">248 × 145 <small>см</small></p>
+            </div>
+          </div>
+        </div>
+        <form class="configuration">
+          <h3>Настройте диван</h3>
+          <fieldset class="choices">
+            <legend class="label">Компоновка</legend>
+            <label><input type="radio" name="layout" value="straight" checked><span>Прямая</span></label>
+            <label><input type="radio" name="layout" value="left"><span>Шезлонг слева</span></label>
+            <label><input type="radio" name="layout" value="right"><span>Шезлонг справа</span></label>
+          </fieldset>
+          <fieldset class="choices">
+            <legend class="label">Спальное место</legend>
+            <label><input type="radio" name="mode" value="seated" checked><span>Сложен</span></label>
+            <label><input type="radio" name="mode" value="open"><span>Разложен</span></label>
+          </fieldset>
+          <fieldset class="choices">
+            <legend class="label">Высота спинки</legend>
+            <label><input type="radio" name="back" value="low" checked><span>78 см</span></label>
+            <label><input type="radio" name="back" value="high"><span>99 см</span></label>
+          </fieldset>
+        </form>
       </div>
-      <div class="photographs">
-        <figure><img src="./assets/furniture/straight.jpg" width="1774" height="887" alt="Прямой диван из светлого букле в интерьере" loading="lazy" decoding="async"><figcaption class="label">01 / Прямая</figcaption></figure>
-        <figure><img src="./assets/furniture/corner.jpg" width="1774" height="887" alt="Диван из светлого букле с правым шезлонгом в том же интерьере" loading="lazy" decoding="async"><figcaption class="label">02 / Шезлонг справа</figcaption></figure>
+    </section>
+    <section class="service" aria-labelledby="service-title">
+      <img src="./assets/furniture/straight.jpg" width="1774" height="887" alt="Прямой диван из светлого букле" loading="lazy" decoding="async">
+      <div class="service-copy">
+        <h2 id="service-title">Каталог под вашу мебель</h2>
+        <p>Спроектируем карточки и соберём конфигуратор под вашу линейку. Покупатель сможет отправить выбранную комплектацию вместе с заявкой.</p>
+        <a class="action" href="./index.html#contact">Обсудить ваш сайт</a>
       </div>
     </section>
   </main>
-  <footer class="footer"><span>Слой / Концепт мебельной студии</span><span>Габариты и механизм модели демонстрационные</span></footer>
+  <footer class="footer"><a href="./index.html">Веб-студия</a><a href="./index.html#work">Другие проекты</a></footer>
 </body>
 </html>
