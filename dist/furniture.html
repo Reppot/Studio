@@ -7,57 +7,82 @@
   <meta name="description" content="Слой. Концепт мебельной студии с интерактивной примеркой модульного дивана М01.">
   <title>Диван М01 — Слой</title>
   <link rel="stylesheet" href="./furniture.css">
-  <script src="./furniture.js" defer></script>
+  <script type="importmap">{"imports":{"three":"./assets/vendor/three/three.module.min.js"}}</script>
+  <script type="module" src="./furniture.js"></script>
 </head>
 <body>
   <header class="masthead">
     <div class="brand"><span>слой.</span><small>Мебельная студия</small></div>
     <a href="./index.html#work">К проектам веб-студии</a>
   </header>
-  <main class="product" id="product">
+  <main class="product">
     <div class="intro">
       <div><p class="label">Коллекция 01 / Мягкая мебель</p><h1>Диван <em>М01</em></h1></div>
-      <div class="intro-options">
-        <p class="intro-copy">Три модуля в обивке из букле. Крайнее сиденье можно заменить шезлонгом.</p>
+      <p class="intro-copy">Соберите диван для своей комнаты. Выберите сторону шезлонга, высоту спинки и цвет букле. Проверьте, сколько места займёт разложенный диван.</p>
+    </div>
+    <section class="configurator" aria-labelledby="configuration-title">
+      <div class="preview">
+        <div class="model-stage" data-model-stage>
+          <div class="stage-top"><span>М01 / Конфигуратор</span><span data-model-label>Чертёж</span></div>
+          <canvas class="model-canvas" aria-hidden="true" hidden></canvas>
+          <svg class="plan" data-plan viewBox="0 0 360 252" role="img" aria-label="Вид дивана сверху"></svg>
+          <div class="stage-bottom" data-view-toolbar hidden>
+            <div class="views" role="group" aria-label="Ракурс модели">
+              <button type="button" data-view="perspective" aria-pressed="true">Объём</button>
+              <button type="button" data-view="top" aria-pressed="false">Сверху</button>
+              <button type="button" data-view="side" aria-pressed="false">Сбоку</button>
+            </div>
+            <span data-orbit-hint>Потяните модель для поворота</span>
+          </div>
+        </div>
+        <div class="specification" aria-live="polite" aria-atomic="true">
+          <div>
+            <p class="label">Ширина × глубина × высота</p>
+            <p class="dimensions"><span data-size>280 × 100 × 78</span> <small>см</small></p>
+          </div>
+          <div data-bed-spec hidden>
+            <p class="label">Спальное место</p>
+            <p class="dimensions">248 × 145 <small>см</small></p>
+          </div>
+        </div>
+      </div>
+      <form class="configuration">
+        <h2 id="configuration-title">Настройки</h2>
         <fieldset class="choices">
           <legend class="label">Компоновка</legend>
           <label><input type="radio" name="layout" value="straight" checked><span>Прямая</span></label>
-          <label><input type="radio" name="layout" value="corner"><span>Угловая справа</span></label>
+          <label><input type="radio" name="layout" value="left"><span>Шезлонг слева</span></label>
+          <label><input type="radio" name="layout" value="right"><span>Шезлонг справа</span></label>
         </fieldset>
+        <fieldset class="choices">
+          <legend class="label">Спальное место</legend>
+          <label><input type="radio" name="mode" value="seated" checked><span>Сложен</span></label>
+          <label><input type="radio" name="mode" value="open"><span>Разложен</span></label>
+        </fieldset>
+        <fieldset class="choices">
+          <legend class="label">Высота спинки</legend>
+          <label><input type="radio" name="back" value="low" checked><span>78 см</span></label>
+          <label><input type="radio" name="back" value="high"><span>99 см</span></label>
+        </fieldset>
+        <fieldset class="choices">
+          <legend class="label">Обивка / букле</legend>
+          <label><input type="radio" name="fabric" value="oat" checked><span><i class="swatch oat"></i>Овсяный</span></label>
+          <label><input type="radio" name="fabric" value="olive"><span><i class="swatch olive"></i>Олива</span></label>
+          <label><input type="radio" name="fabric" value="clay"><span><i class="swatch clay"></i>Глина</span></label>
+        </fieldset>
+      </form>
+    </section>
+    <section class="interior" aria-labelledby="interior-title">
+      <div class="interior-heading">
+        <h2 id="interior-title">В интерьере</h2>
+        <p>Две компоновки в овсяном букле.</p>
       </div>
-    </div>
-    <figure class="interior">
       <div class="photographs">
-        <img class="photo-straight" src="./assets/furniture/straight.jpg" width="1774" height="887" alt="Прямой трёхместный диван из светлого букле в интерьере" fetchpriority="high">
-        <img class="photo-corner" src="./assets/furniture/corner.jpg" width="1774" height="887" alt="Угловой диван из светлого букле с шезлонгом справа в том же интерьере" aria-hidden="true" decoding="async">
+        <figure><img src="./assets/furniture/straight.jpg" width="1774" height="887" alt="Прямой диван из светлого букле в интерьере" loading="lazy" decoding="async"><figcaption class="label">01 / Прямая</figcaption></figure>
+        <figure><img src="./assets/furniture/corner.jpg" width="1774" height="887" alt="Диван из светлого букле с правым шезлонгом в том же интерьере" loading="lazy" decoding="async"><figcaption class="label">02 / Шезлонг справа</figcaption></figure>
       </div>
-      <figcaption class="photo-caption"><span>М01 / Натуральное букле</span><span data-frame>01 / 02</span></figcaption>
-    </figure>
-    <section class="configuration" aria-labelledby="configuration-title">
-      <div>
-        <p class="label">М01 / Компоновка</p>
-        <h2 id="configuration-title">Габариты</h2>
-      </div>
-      <div class="specification">
-        <p class="label">Габариты / ширина × глубина</p>
-        <p class="dimensions" aria-live="polite"><span data-size>280 × 100</span> <small>см</small></p>
-        <p data-description>Три сиденья в один ряд.</p>
-      </div>
-      <figure class="drawing">
-        <svg viewBox="0 0 310 202" aria-hidden="true" fill="none">
-          <rect x="10" y="12" width="290" height="178" rx="3" stroke="currentColor" stroke-opacity=".2" stroke-dasharray="3 5"/>
-          <g fill="#e1dcd0" stroke="currentColor" stroke-width="1.3">
-            <rect x="36" y="35" width="77" height="88" rx="9"/>
-            <rect x="116" y="35" width="77" height="88" rx="9"/>
-            <rect class="drawing-straight" x="196" y="35" width="77" height="88" rx="9"/>
-            <rect class="drawing-corner" x="196" y="35" width="77" height="147" rx="9"/>
-            <path d="M36 57h77m3 0h77m3 0h77M49 57v63m210-63v63"/>
-          </g>
-        </svg>
-        <figcaption class="label">Вид сверху</figcaption>
-      </figure>
     </section>
   </main>
-  <footer class="footer"><span>Слой / Концепт мебельной студии</span><span>Габариты модели приведены для демонстрации</span></footer>
+  <footer class="footer"><span>Слой / Концепт мебельной студии</span><span>Габариты и механизм модели демонстрационные</span></footer>
 </body>
 </html>
