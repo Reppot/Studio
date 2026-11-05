@@ -26,11 +26,12 @@
     ].join('\n');
     const fragmentSource = [
       '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif',
-      'uniform sampler2D u_texture; uniform sampler2D u_next; uniform sampler2D u_empty; uniform bool u_textured;',
-      'uniform float u_progress; uniform float u_direction; uniform float u_storyTime; uniform float u_fromStory; uniform float u_toStory; uniform float u_mobile;',
+      'uniform sampler2D u_texture; uniform sampler2D u_next; uniform sampler2D u_empty; uniform sampler2D u_corner; uniform bool u_textured;',
+      'uniform vec2 u_storyTime; uniform float u_progress; uniform float u_direction; uniform float u_fromStory; uniform float u_toStory; uniform float u_mobile;',
       'uniform vec3 u_frame; varying vec3 v_normal; varying vec3 v_position; varying vec2 v_uv;',
       'bool inside(vec2 p,vec4 r){return p.x>=r.x&&p.x<=r.x+r.z&&p.y>=r.y&&p.y<=r.y+r.w;}',
-      'vec3 page(sampler2D tex,vec2 uv,float story){',
+      'vec3 page(sampler2D tex,vec2 uv,float story,float u_storyTime){',
+      'if(story>1.5){if(u_mobile>0.5)uv.x=mix(0.08,0.92,uv.x);return mix(texture2D(tex,uv).rgb,texture2D(u_corner,uv).rgb,smoothstep(3.0,4.0,u_storyTime));}',
       'if(story<0.5)return texture2D(tex,uv).rgb;',
       'if(u_mobile>0.5){float pan=smoothstep(3.8,5.3,u_storyTime);float x=mix(212.0,1026.0,pan)+uv.x*810.0;float y=340.0+(1.0-uv.y)*498.0;uv=vec2(x/2048.0,1.0-y/1024.0);}',
       'vec3 c=texture2D(tex,uv).rgb;',
@@ -59,8 +60,8 @@
       'float spec=pow(max(dot(n,normalize(light+view)),0.0),68.0);',
       'vec3 color=u_frame;',
       'if(u_textured){float offset=v_uv.x+u_progress*u_direction;',
-      'if(offset<0.0||offset>1.0){color=page(u_next,vec2(offset-u_direction,v_uv.y),u_toStory);}',
-      'else{color=page(u_texture,vec2(offset,v_uv.y),u_fromStory);}',
+      'if(offset<0.0||offset>1.0){color=page(u_next,vec2(offset-u_direction,v_uv.y),u_toStory,u_storyTime.y);}',
+      'else{color=page(u_texture,vec2(offset,v_uv.y),u_fromStory,u_storyTime.x);}',
       'float edge=min(min(v_uv.x,1.0-v_uv.x),min(v_uv.y,1.0-v_uv.y));',
       'color=mix(u_frame,color,smoothstep(0.0025,0.0035,edge));}',
       'color*=0.975+0.025*diffuse; color+=spec*0.006;',
@@ -108,6 +109,7 @@
     const frontMesh=face();
     const position=gl.getAttribLocation(program,'a_position'),normal=gl.getAttribLocation(program,'a_normal'),uv=gl.getAttribLocation(program,'a_uv');
     const uniforms={span:gl.getUniformLocation(program,'u_span'),projection:gl.getUniformLocation(program,'u_projection'),texture:gl.getUniformLocation(program,'u_texture'),next:gl.getUniformLocation(program,'u_next'),empty:gl.getUniformLocation(program,'u_empty'),storyTime:gl.getUniformLocation(program,'u_storyTime'),fromStory:gl.getUniformLocation(program,'u_fromStory'),toStory:gl.getUniformLocation(program,'u_toStory'),mobile:gl.getUniformLocation(program,'u_mobile'),progress:gl.getUniformLocation(program,'u_progress'),direction:gl.getUniformLocation(program,'u_direction'),textured:gl.getUniformLocation(program,'u_textured'),frame:gl.getUniformLocation(program,'u_frame')};
+    const cornerUniform=gl.getUniformLocation(program,'u_corner');
     gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
     function bind(mesh) {
       gl.bindBuffer(gl.ARRAY_BUFFER,mesh.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.ib);
@@ -115,7 +117,7 @@
       gl.enableVertexAttribArray(normal);gl.vertexAttribPointer(normal,3,gl.FLOAT,false,32,12);
       gl.enableVertexAttribArray(uv);gl.vertexAttribPointer(uv,2,gl.FLOAT,false,32,24);
     }
-    const views=buttons.map(b=>({title:b.dataset.sceneTitle||b.textContent.trim(),kind:b.dataset.sceneKind||'studio',url:b.dataset.sceneUrl||'#contact'}));
+    const views=buttons.map(b=>({title:b.dataset.sceneTitle,kind:b.dataset.sceneKind,url:b.dataset.sceneUrl}));
     const textureWidth=Math.min(4096,gl.getParameter(gl.MAX_TEXTURE_SIZE));
     const artwork=window.createBillboardArtwork(textureWidth,refreshArtwork);
     const anisotropy=gl.getExtension('EXT_texture_filter_anisotropic')||gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
@@ -130,8 +132,14 @@
       if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
     }
     const textures=views.map(texture);
-    function refreshArtwork(){
-      views.forEach((view,i)=>{if(view.kind==='sindaris')upload(textures[i],view);});
+    const cornerView={kind:'furniture-corner'};
+    const cornerTexture=texture(cornerView);
+    function refreshArtwork(kind){
+      if(kind===cornerView.kind)upload(cornerTexture,cornerView);
+      else{
+        const i=views.findIndex(view=>view.kind===kind);
+        upload(textures[i],views[i]);
+      }
       needsDraw=true;schedule();
     }
     const emptyTexture=gl.createTexture();
@@ -140,29 +148,32 @@
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
     let raf=0,visible=true,playable=false,paused=document.documentElement.classList.contains('ambient-paused'),lost=false,needsDraw=true;
-    let matrix=identity(),span=1,index=0,transition=null,dwell=0,last=0,storyTime=reduced.matches?9:0,lastDraw=0,lastStep='',hold=false,mobileView=false;
+    let matrix=identity(),span=1,index=0,transition=null,dwell=0,last=0,storyTime=0,outgoingStoryTime=0,lastDraw=0,lastStep='',hold=false,mobileView=false;
     const duration=1.25,clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
+    const isSindaris=(i=index)=>views[i].kind==='sindaris';
+    const dwellLimit=()=>isSindaris()?14:10;
     function sync(){
       buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
       counter.textContent=String(index+1).padStart(2,'0')+' / '+String(views.length).padStart(2,'0');
       canvas.setAttribute('aria-label','Сферический экран: '+views[index].title+'. Клавиши влево и вправо переключают проект.');
       const view=views[index],isCase=view.kind==='sindaris';
       root.dataset.sceneKind=view.kind;title.textContent=view.title;
-      link.href=view.url;link.textContent=isCase?'Открыть проект':'Обсудить проект';
-      link.setAttribute('aria-label',isCase?'Открыть SINDARIS Terminal':'Обсудить проект с веб-студией');
+      link.href=view.url;
+      link.setAttribute('aria-label','Открыть проект '+view.title);
       if(isCase){link.target='_blank';link.rel='noopener noreferrer';}else{link.removeAttribute('target');link.removeAttribute('rel');}
-      replay.hidden=!isCase||reduced.matches;
-      hint.textContent=isCase?'Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Данные иллюстративные. Управление расположено над экраном.':'Презентация веб-студии. Управление расположено над экраном.';
+      replay.hidden=reduced.matches;
+      replay.setAttribute('aria-label','Повторить демонстрацию проекта '+view.title);
+      hint.textContent=isCase?'Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Данные иллюстративные. Управление расположено над экраном.':'Демонстрация двух компоновок модульного дивана. Управление расположено над экраном.';
       lastStep='';syncStory();
     }
     function syncStory(){
-      const isCase=views[index].kind==='sindaris';
-      const step=isCase?(storyTime<2.5?0:storyTime<4.8?1:storyTime<7.8?2:3):'studio';
+      const isCase=isSindaris();
+      const step=isCase?(storyTime<2.5?0:storyTime<4.8?1:storyTime<7.8?2:3):(storyTime<3.5?0:1);
       if(String(step)!==lastStep){
         lastStep=String(step);root.dataset.storyStep=lastStep;
-        status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:'Дизайн и веб-разработка';
+        status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:'Диван М01 · '+['Прямая компоновка','Угловая компоновка'][step];
       }
-      progress.style.transform='scaleX('+Math.min(1,dwell/(isCase?14:9))+')';
+      progress.style.transform='scaleX('+Math.min(1,dwell/dwellLimit())+')';
     }
     function go(viewIndex,direction=1,manual=false) {
       if(manual)hold=true;
@@ -174,8 +185,13 @@
       if(transition&&!manual)return;
       if(transition&&viewIndex===transition.from){
         transition={from:transition.to,to:transition.from,elapsed:duration-transition.elapsed,direction:-transition.direction,manual};
-      }else transition={from:index,to:viewIndex,elapsed:0,direction,manual};
-      index=viewIndex;dwell=0;if(views[index].kind==='sindaris')storyTime=reduced.matches||paused?9:0;needsDraw=true;sync();
+        [storyTime,outgoingStoryTime]=[outgoingStoryTime,storyTime];
+      }else{
+        transition={from:index,to:viewIndex,elapsed:0,direction,manual};
+        outgoingStoryTime=storyTime;
+        storyTime=isSindaris(viewIndex)&&(reduced.matches||paused)?9:0;
+      }
+      index=viewIndex;dwell=0;needsDraw=true;sync();
       if(reduced.matches)transition=null;
       schedule();
     }
@@ -186,13 +202,14 @@
       gl.uniform1f(uniforms.span,span);
       const t=transition?clamp(transition.elapsed/duration,0,1):0,ease=t*t*(3-2*t);
       gl.uniform1f(uniforms.progress,ease);gl.uniform1f(uniforms.direction,transition?transition.direction:1);
-      gl.uniform1f(uniforms.storyTime,storyTime);
+      gl.uniform2f(uniforms.storyTime,transition?outgoingStoryTime:storyTime,storyTime);
       gl.uniform1f(uniforms.mobile,mobileView?1:0);
-      gl.uniform1f(uniforms.fromStory,views[transition?transition.from:index].kind==='sindaris'?1:0);
-      gl.uniform1f(uniforms.toStory,views[transition?transition.to:index].kind==='sindaris'?1:0);
+      gl.uniform1f(uniforms.fromStory,isSindaris(transition?transition.from:index)?1:2);
+      gl.uniform1f(uniforms.toStory,isSindaris(transition?transition.to:index)?1:2);
       gl.uniform1i(uniforms.texture,0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures[transition?transition.from:index]);
       gl.uniform1i(uniforms.next,1);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,textures[transition?transition.to:index]);
       gl.uniform1i(uniforms.empty,2);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,emptyTexture);
+      gl.uniform1i(cornerUniform,3);gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,cornerTexture);
       gl.uniform1i(uniforms.textured,1);gl.uniform3f(uniforms.frame,.32,.36,.30);bind(frontMesh);gl.drawElements(gl.TRIANGLES,frontMesh.count,gl.UNSIGNED_SHORT,0);
     }
     function frame(time){
@@ -201,8 +218,8 @@
       let storyMoving=false;
       if(!paused&&!reduced.matches&&playable&&!transition){
         dwell+=dt;
-        if(views[index].kind==='sindaris'&&storyTime<9){storyTime=Math.min(9,storyTime+dt);storyMoving=true;}
-        if(!hold&&dwell>(views[index].kind==='sindaris'?14:9))go((index+1)%views.length,1,false);
+        if(storyTime<9){storyTime=Math.min(9,storyTime+dt);storyMoving=true;}
+        if(!hold&&dwell>dwellLimit())go((index+1)%views.length,1,false);
       }
       if(transition&&(!paused||transition.manual)){
         transition.elapsed+=dt;
@@ -231,12 +248,10 @@
       const resizeError=gl.getError();
       if(resizeError!==gl.NO_ERROR)console.warn('Screen resize error:',resizeError);
     }
-    buttons.forEach((b,i)=>b.addEventListener('click',()=>go(i,1,true)));
+    buttons.forEach((b,i)=>b.addEventListener('click',()=>go(i,i<index?-1:1,true)));
     replay.addEventListener('click',()=>{
       if(reduced.matches)return;
       hold=true;
-      const caseIndex=views.findIndex(view=>view.kind==='sindaris');
-      if(index!==caseIndex)go(caseIndex,1,true);
       storyTime=dwell=0;needsDraw=true;last=performance.now();syncStory();
       const blocked=document.querySelector('.site-header').getBoundingClientRect().height+root.querySelector('.scene-toolbar').getBoundingClientRect().height;
       window.scrollTo({top:Math.max(0,scrollY+focus.getBoundingClientRect().top-(innerHeight+blocked)/2),behavior:'smooth'});
@@ -248,7 +263,7 @@
       if(e.key==='Home'){e.preventDefault();go(0,-1,true);}
     });
     window.addEventListener('studio-motion-change',e=>{paused=e.detail.paused;last=performance.now();if(transition&&paused)transition.manual=false;schedule();});
-    reduced.addEventListener('change',()=>{if(reduced.matches){transition=null;storyTime=9;}needsDraw=true;sync();schedule();});
+    reduced.addEventListener('change',()=>{if(reduced.matches){transition=null;storyTime=isSindaris()?9:0;}needsDraw=true;sync();schedule();});
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{last=performance.now();schedule();}});
     const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){last=performance.now();schedule();}else{cancelAnimationFrame(raf);raf=0;}},{rootMargin:'60px'});
     let playbackObserver;
@@ -262,6 +277,6 @@
     observer.observe(host);const ro=new ResizeObserver(resize);ro.observe(host);
     canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;cancelAnimationFrame(raf);host.classList.remove('is-rendered');hint.textContent='Статичная миниатюра проекта';replay.hidden=true;buttons.forEach(b=>b.disabled=true);});
     sync();resize();host.classList.add('is-rendered');schedule();
-    window.addEventListener('pagehide',e=>{if(e.persisted)return;cancelAnimationFrame(raf);observer.disconnect();playbackObserver.disconnect();window.removeEventListener('resize',observePlayback);ro.disconnect();gl.deleteBuffer(frontMesh.vb);gl.deleteBuffer(frontMesh.ib);textures.forEach(t=>gl.deleteTexture(t));gl.deleteTexture(emptyTexture);gl.deleteProgram(program);},{once:true});
+    window.addEventListener('pagehide',e=>{if(e.persisted)return;cancelAnimationFrame(raf);observer.disconnect();playbackObserver.disconnect();window.removeEventListener('resize',observePlayback);ro.disconnect();gl.deleteBuffer(frontMesh.vb);gl.deleteBuffer(frontMesh.ib);textures.forEach(t=>gl.deleteTexture(t));gl.deleteTexture(cornerTexture);gl.deleteTexture(emptyTexture);gl.deleteProgram(program);},{once:true});
   };
 })();

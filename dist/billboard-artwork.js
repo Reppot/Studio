@@ -1,5 +1,4 @@
-/* Presentation of the real pyramid-to-order flow from SINDARIS.
-   Colours, terminology and item artwork come from the project; quantities are demo data. */
+/* Textures for the furniture configurator and the SINDARIS order flow. */
 (() => {
   'use strict';
   window.createBillboardArtwork = function (width, onReady) {
@@ -9,13 +8,20 @@
       {name:'Солдатское снаряжение',file:'SoldierSupplies',have:20,target:30}
     ];
     let pending=items.length;
-    const settled=()=>{if(--pending===0)onReady();};
+    const settled=()=>{if(--pending===0)onReady('sindaris');};
     items.forEach(item=>{
       item.image=new Image();
       item.image.addEventListener('load',settled,{once:true});
       item.image.addEventListener('error',settled,{once:true});
       item.image.src='./assets/sindaris/items/'+item.file+'.png';
     });
+    const interiors={};
+    for(const [kind,file] of [['furniture','straight'],['furniture-corner','corner']]){
+      const image=new Image();
+      image.addEventListener('load',()=>onReady(kind),{once:true});
+      image.src='./assets/furniture/'+file+'.jpg';
+      interiors[kind]=image;
+    }
     function box(c,x,y,w,h,r,fill,stroke){
       c.beginPath();c.roundRect(x,y,w,h,r);
       if(fill){c.fillStyle=fill;c.fill();}
@@ -77,37 +83,26 @@
       text(c,'Демонстрационный состав заказа',212,896,20,'#858d87');
       text(c,'Next.js / FastAPI / PostgreSQL',1836,896,20,'#858d87','400','right');
     }
-    function studio(c){
-      c.fillStyle='#f7f5ed';c.fillRect(0,0,2048,1024);
-      c.fillStyle='#ed5038';[40,29,18].forEach((h,i)=>c.fillRect(180+i*23,126-h,12,h));
-      text(c,'Веб-студия',274,124,34,'#202421','600');
-      text(c,'Дизайн / Разработка',1868,124,21,'#858d77','400','right');
-      line(c,180,159,1688,'#d4d8ca');
-      text(c,'Интерфейс.',212,340,113,'#202421');
-      text(c,'Логика.',212,468,113,'#202421');
-      text(c,'Работает.',212,596,113,'#ed5038');
-      text(c,'Проектируем и разрабатываем веб-продукты.',216,690,27,'#757d6a');
-      text(c,'От первого сценария до запуска.',216,737,27,'#757d6a');
-      // A finished product composition, rather than a repeated copy of this landing page.
-      box(c,1120,246,708,500,15,'#e8ecdf','#cad2bd');
-      line(c,1120,308,708,'#cad2bd');
-      text(c,'Проект',1152,286,22,'#737f65');
-      box(c,1150,340,174,374,8,'#d7dfca');
-      [0,1,2,3,4].forEach(i=>box(c,1172,370+i*48,i===0?127:92,9,4,i===0?'#81926d':'#b7c4a7'));
-      box(c,1350,340,446,113,9,'#f7f5ed');
-      text(c,'Всё на своих местах.',1373,388,26,'#30392a','600');
-      [0,1,2].forEach(i=>{
-        const y=476+i*76;
-        box(c,1350,y,446,62,9,'#f7f5ed');
-        box(c,1372,y+20,170,7,3,'#b3bfa6');
-        check(c,1754,y+22,'#798f64');
-      });
-      text(c,'Структура, интерфейс, серверная часть и интеграции.',212,878,25,'#757d6a');
+    function furniture(c,kind){
+      const corner=kind==='furniture-corner',image=interiors[kind];
+      c.fillStyle='#77624c';c.fillRect(0,0,2048,1024);
+      if(image.naturalWidth)c.drawImage(image,0,0,2048,1024);
+      const shade=c.createLinearGradient(0,0,0,1024);
+      shade.addColorStop(0,'rgba(26,20,15,.65)');
+      shade.addColorStop(.38,'rgba(26,20,15,0)');
+      shade.addColorStop(.82,'rgba(26,20,15,0)');
+      shade.addColorStop(1,'rgba(26,20,15,.76)');
+      c.fillStyle=shade;c.fillRect(0,0,2048,1024);
+      c.fillStyle='#fff4e4';c.font='bold 114px Georgia';c.fillText('слой.',260,221);
+      text(c,'Диван М01',268,278,42,'#fff4e4');
+      text(c,corner?'Угловая компоновка':'Прямая компоновка',268,952,37,'#fff4e4','600');
+      text(c,corner?'280 × 170 см':'280 × 100 см',1780,952,37,'#fff4e4','400','right');
     }
     function render(kind){
       const page=document.createElement('canvas');page.width=width;page.height=width/2;
       const c=page.getContext('2d');c.scale(scale,scale);c.imageSmoothingQuality='high';
-      (kind==='sindaris'?sindaris:studio)(c);return page;
+      if(kind==='sindaris')sindaris(c);else furniture(c,kind);
+      return page;
     }
     function empty(){
       const page=document.createElement('canvas');page.width=1536;page.height=256;
