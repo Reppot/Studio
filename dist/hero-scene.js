@@ -152,6 +152,7 @@
       if(kind===views[index].kind)host.classList.add('is-rendered');
       needsDraw=true;
       schedule();
+      resetRotation();
     }
     let raf=0,visible=false,playable=false,lost=false,needsDraw=true;
     let matrix=identity(),verticalScale=1,transition=null,last=0,mobileView=false;
@@ -160,9 +161,25 @@
     const storyDuration=()=>index===0?3:1.85;
     const canPlay=()=>playable&&!reduced.matches&&storyTime<storyDuration()
       &&textures.has(views[index].kind)&&(index!==0||textures.has('furniture-corner'));
+    const rotationDelay=8000;
+    let rotationTimer=0,overControl=false;
+
+    function canRotate(){
+      const focused=document.activeElement;
+      const keyboardFocus=root.contains(focused)&&focused.matches(':focus-visible');
+      return playable&&!lost&&!document.hidden&&!reduced.matches&&!overControl&&!keyboardFocus
+        &&views.every(view=>textures.has(view.kind));
+    }
+
+    function resetRotation(){
+      clearTimeout(rotationTimer);
+      if(canRotate())rotationTimer=setTimeout(()=>{
+        if(canRotate())select((index+1)%views.length,1);
+      },rotationDelay);
+    }
 
     select=(next,direction)=>{
-      if(next===index)return;
+      if(next===index){resetRotation();return;}
       const ready=textures.has(views[next].kind);
       if(!lost&&!reduced.matches&&ready&&textures.has(views[index].kind)){
         if(transition&&next===transition.from){
@@ -182,6 +199,7 @@
       host.classList.toggle('is-rendered',ready&&!lost);
       needsDraw=true;
       schedule();
+      resetRotation();
     };
     function schedule(){
       if(!raf&&!lost&&visible&&!document.hidden){
@@ -255,15 +273,37 @@
       if(reduced.matches){transition=null;storyTime=storyEnd;}
       needsDraw=true;
       schedule();
+      resetRotation();
     });
+    for(const control of [root.querySelector('.scene-toolbar'),link]){
+      control.addEventListener('pointerenter',event=>{
+        if(event.pointerType==='touch')return;
+        overControl=true;
+        resetRotation();
+      });
+      control.addEventListener('pointerleave',()=>{
+        overControl=false;
+        resetRotation();
+      });
+    }
+    root.addEventListener('focusin',resetRotation);
+    root.addEventListener('focusout',()=>queueMicrotask(resetRotation));
     document.addEventListener('visibilitychange',()=>{
       if(document.hidden){cancelAnimationFrame(raf);raf=0;}
       else schedule();
+      resetRotation();
+    });
+    window.addEventListener('pageshow',event=>{
+      if(event.persisted){schedule();resetRotation();}
     });
     const observer=new IntersectionObserver(([entry])=>{
       visible=entry.isIntersecting;
       const viewportArea=innerWidth*innerHeight;
-      playable=visible&&entry.intersectionRect.width*entry.intersectionRect.height>=viewportArea*.21;
+      const nextPlayable=visible&&entry.intersectionRect.width*entry.intersectionRect.height>=viewportArea*.21;
+      if(playable!==nextPlayable){
+        playable=nextPlayable;
+        resetRotation();
+      }
       if(visible)schedule();
       else{cancelAnimationFrame(raf);raf=0;}
     },{threshold:[0,.1,.2,.3,.4,.5],rootMargin:'0px'});
@@ -272,17 +312,19 @@
     ro.observe(host);
     canvas.addEventListener('webglcontextlost',()=>{
       lost=true;cancelAnimationFrame(raf);raf=0;
+      clearTimeout(rotationTimer);
       host.classList.remove('is-rendered');
       hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';
     });
     resize();
     window.addEventListener('pagehide',event=>{
+      clearTimeout(rotationTimer);
       if(event.persisted)return;
       cancelAnimationFrame(raf);
       observer.disconnect();ro.disconnect();
       gl.deleteBuffer(frontMesh.vb);gl.deleteBuffer(frontMesh.ib);
       textures.forEach(texture=>gl.deleteTexture(texture));
       gl.deleteProgram(program);
-    },{once:true});
+    });
   };
 })();
