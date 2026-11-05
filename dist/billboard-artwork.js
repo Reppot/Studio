@@ -11,7 +11,7 @@
     const images = {};
     for (const [kind, source] of Object.entries(sources)) {
       const image = new Image();
-      image.addEventListener('load', () => onReady(kind), { once: true });
+      image.onload = image.onerror = () => onReady(kind);
       images[kind] = image;
       image.src = source;
     }

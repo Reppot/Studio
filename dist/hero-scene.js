@@ -35,45 +35,47 @@
     });
     sync();
     let gl;
-    try{gl=canvas.getContext('webgl',{alpha:true,antialias:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(_){}
+    try{gl=canvas.getContext('webgl',{alpha:true,antialias:false,depth:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(_){}
     if(!gl){hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';return;}
     const vertexSource = [
       'attribute vec3 a_position; attribute vec3 a_normal; attribute vec2 a_uv;',
-      'uniform mat4 u_projection; uniform float u_span;',
-      'varying vec3 v_normal; varying vec3 v_position; varying vec2 v_uv;',
+      'uniform mat4 u_projection; uniform float u_verticalScale;',
+      'varying vec2 v_uv; varying float v_lighting; varying float v_glint;',
       'void main(){ vec4 world=vec4(a_position,1.0);',
-      'v_position=world.xyz; v_normal=a_normal; v_uv=a_uv;',
+      'vec3 light=normalize(vec3(0.0,4.0,7.0));',
+      'vec3 view=normalize(vec3(0.0,0.0,6.6)-a_position);',
+      'v_lighting=0.975+0.025*max(dot(a_normal,light),0.0);',
+      'v_glint=0.006*pow(max(dot(a_normal,normalize(light+view)),0.0),68.0);',
+      'v_uv=a_uv;',
       'gl_Position=u_projection*vec4(world.xyz-vec3(0.0,0.0,6.6),1.0);',
-      // Lock both UV boundaries to the page edges while depth keeps the vertical curve.
-      'gl_Position.x=(a_uv.x*2.0-1.0)*u_span*gl_Position.w; }'
+      // Project the original curve into the visible canvas without allocating its cropped margins.
+      'gl_Position.x=(a_uv.x*2.0-1.0)*gl_Position.w;',
+      'gl_Position.y*=u_verticalScale; }'
     ].join('\n');
     const fragmentSource = [
       '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif',
       'uniform sampler2D u_texture; uniform sampler2D u_next; uniform sampler2D u_corner;',
       'uniform vec2 u_storyTime; uniform float u_progress; uniform float u_direction; uniform float u_fromStory; uniform float u_toStory; uniform float u_mobile;',
-      'uniform vec3 u_frame; varying vec3 v_normal; varying vec3 v_position; varying vec2 v_uv;',
+      'uniform vec3 u_frame; varying vec2 v_uv; varying float v_lighting; varying float v_glint;',
       'vec3 page(sampler2D tex,vec2 uv,float kind,float time){',
       'if(u_mobile>0.5)uv.x=mix(0.08,0.92,uv.x);',
       'if(kind<0.5)return mix(texture2D(tex,uv).rgb,texture2D(u_corner,uv).rgb,smoothstep(1.8,3.0,time));',
       'float y=1.0-uv.y; float panel=700.0/1024.0;',
       'if(y<panel)return texture2D(tex,uv).rgb;',
-      'float reveal=smoothstep(0.65,2.45,time);',
+      'float reveal=smoothstep(0.35,1.85,time);',
       'vec3 matte=kind<1.5?vec3(0.094,0.102,0.0745):vec3(0.910,0.910,0.863);',
-      'float offset=(1.0-reveal)*0.12;',
-      'if(y-offset<panel)return matte;',
-      'return mix(matte,texture2D(tex,uv+vec2(0.0,offset)).rgb,reveal);}',
-      'void main(){ vec3 n=normalize(v_normal);',
-      'vec3 light=normalize(vec3(0.0,4.0,7.0));',
-      'vec3 view=normalize(vec3(0.0,0.0,6.6)-v_position);',
-      'float diffuse=max(dot(n,light),0.0);',
-      'float spec=pow(max(dot(n,normalize(light+view)),0.0),68.0);',
+      'float offset=(1.0-reveal)*0.014;',
+      'float blend=reveal*smoothstep(panel,panel+0.012,y-offset);',
+      'vec2 sampleUv=vec2(uv.x,min(1.0-panel,uv.y+offset));',
+      'return mix(matte,texture2D(tex,sampleUv).rgb,blend);}',
+      'void main(){',
       'float offset=v_uv.x+u_progress*u_direction;',
       'vec3 color;',
       'if(offset<0.0||offset>1.0){color=page(u_next,vec2(offset-u_direction,v_uv.y),u_toStory,u_storyTime.y);}',
       'else{color=page(u_texture,vec2(offset,v_uv.y),u_fromStory,u_storyTime.x);}',
       'float edge=min(min(v_uv.x,1.0-v_uv.x),min(v_uv.y,1.0-v_uv.y));',
       'color=mix(u_frame,color,smoothstep(0.0025,0.0035,edge));',
-      'color*=0.975+0.025*diffuse; color+=spec*0.006;',
+      'color=color*v_lighting+v_glint;',
       'gl_FragColor=vec4(color,1.0); }'
     ].join('\n');
     function compile(type,source) {
@@ -118,9 +120,9 @@
     const frontMesh=face();
     const position=gl.getAttribLocation(program,'a_position'),normal=gl.getAttribLocation(program,'a_normal'),uv=gl.getAttribLocation(program,'a_uv');
     const uniforms=Object.fromEntries([
-      'span','projection','texture','next','corner','storyTime','fromStory','toStory','mobile','progress','direction','frame'
+      'verticalScale','projection','texture','next','corner','storyTime','fromStory','toStory','mobile','progress','direction','frame'
     ].map(name=>[name,gl.getUniformLocation(program,'u_'+name)]));
-    gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
+    gl.useProgram(program);gl.enable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
     function bind(mesh) {
       gl.bindBuffer(gl.ARRAY_BUFFER,mesh.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.ib);
       gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,3,gl.FLOAT,false,32,0);
@@ -141,25 +143,28 @@
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
       if(anisotropy)gl.texParameterf(gl.TEXTURE_2D,anisotropy.TEXTURE_MAX_ANISOTROPY_EXT,gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
     }
-    const textures=new Map([...views.map(view=>view.kind),'furniture-corner'].map(kind=>{
-      const texture=gl.createTexture();
-      upload(texture,kind);
-      return [kind,texture];
-    }));
+    const textures=new Map();
     function refreshArtwork(kind){
       if(lost)return;
-      upload(textures.get(kind),kind);
+      const texture=gl.createTexture();
+      upload(texture,kind);
+      textures.set(kind,texture);
+      if(kind===views[index].kind)host.classList.add('is-rendered');
       needsDraw=true;
       schedule();
     }
     let raf=0,visible=false,playable=false,lost=false,needsDraw=true;
-    let matrix=identity(),span=1,transition=null,last=0,lastDraw=0,mobileView=false;
+    let matrix=identity(),verticalScale=1,transition=null,last=0,mobileView=false;
     const storyEnd=3.2,transitionDuration=.85;
     let storyTime=reduced.matches?storyEnd:0,outgoingStoryTime=0;
+    const storyDuration=()=>index===0?3:1.85;
+    const canPlay=()=>playable&&!reduced.matches&&storyTime<storyDuration()
+      &&textures.has(views[index].kind)&&(index!==0||textures.has('furniture-corner'));
 
     select=(next,direction)=>{
       if(next===index)return;
-      if(!lost&&!reduced.matches){
+      const ready=textures.has(views[next].kind);
+      if(!lost&&!reduced.matches&&ready&&textures.has(views[index].kind)){
         if(transition&&next===transition.from){
           transition={from:index,to:next,elapsed:transitionDuration-transition.elapsed,direction:-transition.direction};
           [storyTime,outgoingStoryTime]=[outgoingStoryTime,storyTime];
@@ -170,10 +175,11 @@
         }
       }else{
         transition=null;
-        storyTime=storyEnd;
+        storyTime=reduced.matches?storyEnd:0;
       }
       index=next;
       sync();
+      host.classList.toggle('is-rendered',ready&&!lost);
       needsDraw=true;
       schedule();
     };
@@ -184,12 +190,14 @@
       }
     }
     function draw(){
+      const from=transition?.from??index,to=transition?.to??index;
+      const fromTexture=textures.get(views[from].kind);
+      if(!fromTexture)return;
       gl.viewport(0,0,canvas.width,canvas.height);
-      gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
       gl.uniformMatrix4fv(uniforms.projection,false,matrix);
-      gl.uniform1f(uniforms.span,span);
-      const from=transition?.from??index,to=transition?.to??index;
+      gl.uniform1f(uniforms.verticalScale,verticalScale);
       const t=transition?Math.min(1,transition.elapsed/transitionDuration):0;
       gl.uniform1f(uniforms.progress,t*t*(3-2*t));
       gl.uniform1f(uniforms.direction,transition?.direction??1);
@@ -197,9 +205,9 @@
       gl.uniform1f(uniforms.mobile,mobileView?1:0);
       gl.uniform1f(uniforms.fromStory,from);
       gl.uniform1f(uniforms.toStory,to);
-      gl.uniform1i(uniforms.texture,0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures.get(views[from].kind));
+      gl.uniform1i(uniforms.texture,0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,fromTexture);
       gl.uniform1i(uniforms.next,1);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,textures.get(views[to].kind));
-      gl.uniform1i(uniforms.corner,2);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,textures.get('furniture-corner'));
+      gl.uniform1i(uniforms.corner,2);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,textures.get('furniture-corner')??fromTexture);
       gl.uniform3f(uniforms.frame,.32,.36,.30);
       bind(frontMesh);
       gl.drawElements(gl.TRIANGLES,frontMesh.count,gl.UNSIGNED_SHORT,0);
@@ -207,43 +215,41 @@
     function frame(time){
       raf=0;
       if(lost||!visible||document.hidden)return;
-      const dt=Math.min(Math.max(0,time-last)/1000,.08);
+      const dt=Math.max(0,time-last)/1000;
       last=time;
       const changing=!!transition;
-      const playing=!changing&&playable&&!reduced.matches&&storyTime<storyEnd;
+      const playing=!changing&&canPlay();
       if(changing){
         transition.elapsed+=dt;
         if(transition.elapsed>=transitionDuration)transition=null;
-      }else if(playing)storyTime=Math.min(storyEnd,storyTime+dt);
-      if(needsDraw||changing||(playing&&(storyTime===storyEnd||time-lastDraw>=1000/30))){
+      }else if(playing)storyTime=Math.min(storyDuration(),storyTime+dt);
+      if(needsDraw||changing||playing){
         draw();
         needsDraw=false;
-        lastDraw=time;
       }
-      if(transition||(playable&&!reduced.matches&&storyTime<storyEnd))raf=requestAnimationFrame(frame);
+      if(transition||canPlay())raf=requestAnimationFrame(frame);
     }
     function resize(){
       const box=host.getBoundingClientRect(),mobile=innerWidth<=700;
       mobileView=mobile;
-      // Three times the previous hero canvas, in both dimensions. The full-width stage frames it.
+      // Keep the original virtual framing while rendering only the pixels inside the stage.
       const baselineWidth=Math.min(1440,box.width*.89)*.98/2.03;
       const displayWidth=mobile?box.width*1.15:Math.max(box.width,baselineWidth*3);
       const baselineHeight=innerWidth<=1000?480:Math.max(450,Math.min(640,innerWidth*.42));
       const displayHeight=mobile?box.width*1.15:baselineHeight*3;
-      canvas.style.width=displayWidth+'px';canvas.style.height=displayHeight+'px';
-      canvas.style.left=(box.width-displayWidth)/2+'px';canvas.style.top=(box.height-displayHeight)/2+'px';
-      const limit=Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
-      const desired=mobile?Math.min(2048,Math.ceil(displayWidth*Math.max(2,devicePixelRatio||1))):4096;
-      const renderWidth=Math.min(limit,desired,limit*displayWidth/displayHeight);
-      canvas.width=Math.round(renderWidth);canvas.height=Math.round(Math.min(4096,renderWidth*displayHeight/displayWidth));
+      const [maxWidth,maxHeight]=gl.getParameter(gl.MAX_VIEWPORT_DIMS);
+      const pixelRatio=Math.min(devicePixelRatio||1,2,Math.sqrt(2600000/(box.width*box.height)),maxWidth/box.width,maxHeight/box.height);
+      const renderWidth=Math.round(box.width*pixelRatio),renderHeight=Math.round(box.height*pixelRatio);
+      if(canvas.width!==renderWidth)canvas.width=renderWidth;
+      if(canvas.height!==renderHeight)canvas.height=renderHeight;
       canvas.dataset.textureWidth=String(textureWidth);canvas.dataset.textureHeight=String(textureWidth/2);
-      span=box.width/displayWidth;matrix=projection(displayWidth/displayHeight);
+      verticalScale=displayHeight/box.height;
+      matrix=projection(displayWidth/displayHeight);
       const [,edgeY,edgeZ]=surface(1,0);
       const edgeTop=box.height/2-displayHeight*matrix[5]*edgeY/(2*(6.6-edgeZ));
       root.style.setProperty('--scene-edge-top',Math.max(0,Math.ceil(edgeTop))+'px');
-      draw();gl.flush();schedule();
-      const resizeError=gl.getError();
-      if(resizeError!==gl.NO_ERROR)console.warn('Screen resize error:',resizeError);
+      needsDraw=true;
+      schedule();
     }
     reduced.addEventListener('change',()=>{
       if(reduced.matches){transition=null;storyTime=storyEnd;}
@@ -256,10 +262,9 @@
     });
     const observer=new IntersectionObserver(([entry])=>{
       visible=entry.isIntersecting;
-      const wasPlayable=playable;
       const viewportArea=innerWidth*innerHeight;
       playable=visible&&entry.intersectionRect.width*entry.intersectionRect.height>=viewportArea*.21;
-      if(visible){if(playable||!wasPlayable)schedule();}
+      if(visible)schedule();
       else{cancelAnimationFrame(raf);raf=0;}
     },{threshold:[0,.1,.2,.3,.4,.5],rootMargin:'0px'});
     observer.observe(host);
@@ -271,7 +276,6 @@
       hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';
     });
     resize();
-    host.classList.add('is-rendered');
     window.addEventListener('pagehide',event=>{
       if(event.persisted)return;
       cancelAnimationFrame(raf);
