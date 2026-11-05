@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171814">
+  <meta name="description" content="Афиша тура «После шума» с выбором города, концерта и билетов.">
+  <title>После шума — афиша тура</title>
+  <link rel="stylesheet" href="./showcases.css">
+  <script src="./concerts.js" type="module"></script>
+</head>
+<body class="tour">
+  <header class="case-nav"><a href="./index.html#work">Веб-студия / Проекты</a><a href="#dates">Даты тура</a></header>
+  <main class="case-wrap">
+    <section class="tour-hero" aria-labelledby="tour-title">
+      <img src="./assets/cases/concert.jpg" alt="" width="1774" height="887" fetchpriority="high">
+      <div class="tour-poster">
+        <p class="case-kicker">Концертный тур / Весна 2027</p>
+        <h1 id="tour-title">После<br>шума<span>.</span></h1>
+        <a class="tour-ticket" href="#dates"><span>Смотреть<br>афишу</span><i aria-hidden="true"></i></a>
+      </div>
+    </section>
+    <section class="tour-dates" id="dates" aria-labelledby="dates-title">
+      <div class="case-section-head">
+        <h2 id="dates-title">Афиша тура</h2>
+        <label class="case-field">Город<select data-city><option value="">Все города</option></select></label>
+      </div>
+      <div data-concerts></div>
+      <p class="case-kicker" data-concert-count aria-live="polite"></p>
+    </section>
+  </main>
+  <footer class="case-footer"><span>После шума / Концертный тур</span><a href="./index.html#work">К проектам студии</a></footer>
+  <dialog class="case-dialog" data-tickets aria-labelledby="ticket-title">
+    <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>
+    <p class="case-kicker" data-ticket-date></p>
+    <h2 id="ticket-title">Билеты</h2>
+    <p data-ticket-venue></p>
+    <div class="ticket-fields">
+      <label class="case-field">Зона<select data-zone><option value="floor">Танцпол</option><option value="balcony">Балкон</option></select></label>
+      <label class="case-field">Количество<select data-quantity><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    </div>
+    <p class="case-total" data-ticket-total aria-live="polite"></p>
+    <p class="dialog-note">Цены приведены для примера. Покупка билетов недоступна.</p>
+  </dialog>
+</body>
+</html>

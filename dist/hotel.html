@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eeece2">
+  <meta name="description" content="Тихая вода. Домики у озера с подбором по датам и расчётом стоимости проживания.">
+  <title>Тихая вода — домики у озера</title>
+  <link rel="stylesheet" href="./showcases.css">
+  <script src="./hotel.js" type="module"></script>
+</head>
+<body class="hotel">
+  <header class="case-nav"><a href="./index.html#work">Веб-студия / Проекты</a><a href="#stay">Подобрать домик</a></header>
+  <main class="case-wrap">
+    <section class="hotel-hero" aria-labelledby="hotel-title">
+      <img src="./assets/cases/hotel.jpg" alt="Деревянный домик на берегу озера в сумерках" width="1774" height="887" fetchpriority="high">
+      <div><p class="case-kicker">Загородный отель</p><h1 id="hotel-title">Тихая<br><em>вода.</em></h1><p>Домики у озера, среди сосен.</p><a class="hotel-action" href="#stay">Подобрать домик</a></div>
+    </section>
+    <section class="hotel-stay" id="stay" aria-labelledby="stay-title">
+      <div class="case-section-head"><h2 id="stay-title">Выберите домик</h2><p>Стоимость за весь заезд с учётом дат и числа гостей.</p></div>
+      <form class="stay-form" data-stay-form>
+        <label class="case-field">Заезд<input type="date" name="arrival" required></label>
+        <label class="case-field">Выезд<input type="date" name="departure" required></label>
+        <label class="case-field">Гости<select name="guests"><option value="1">1 гость</option><option value="2" selected>2 гостя</option><option value="3">3 гостя</option><option value="4">4 гостя</option><option value="5">5 гостей</option><option value="6">6 гостей</option></select></label>
+      </form>
+      <p class="stay-status" data-stay-status aria-live="polite"></p>
+      <div class="stay-results" data-stays></div>
+    </section>
+  </main>
+  <footer class="case-footer"><span>Тихая вода / Загородный отель</span><a href="./index.html#work">К проектам студии</a></footer>
+  <dialog class="case-dialog" data-stay-dialog aria-labelledby="stay-dialog-title">
+    <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>
+    <p class="case-kicker" data-booking-dates></p>
+    <h2 id="stay-dialog-title"></h2>
+    <p data-booking-guests></p>
+    <p class="case-total" data-booking-total></p>
+    <p class="dialog-note">Расчёт приведён для примера. Бронирование недоступно.</p>
+  </dialog>
+</body>
+</html>

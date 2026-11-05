@@ -39,7 +39,6 @@
       </div>
       <div class="scene-shell" id="showcase" data-scene-kind="furniture">
         <div class="hero-art" data-scene>
-          <span class="scene-play-focus" data-story-focus aria-hidden="true"></span>
           <div class="scene-fallback scene-image-fallback" aria-hidden="true"><img src="./assets/furniture/straight.jpg" width="1774" height="887" alt=""></div>
           <canvas class="hero-canvas" tabindex="0" role="img" aria-label="Сферический экран. Выберите проект кнопками или клавишами влево и вправо." aria-describedby="scene-hint scene-status"></canvas>
           <p class="scene-hint" id="scene-hint">Демонстрация двух компоновок модульного дивана. Кнопки управления находятся в правом верхнем углу экрана.</p>
@@ -48,12 +47,9 @@
         <div class="scene-chrome">
           <div class="scene-toolbar" role="group" aria-label="Управление витриной">
             <div class="scene-views" role="group" aria-label="Проект на 3D-экране">
-              <button type="button" data-scene-view="0" data-scene-kind="furniture" data-scene-title="Конфигуратор дивана" data-scene-url="./furniture.html#configurator" aria-pressed="true">Мебель</button>
-              <button type="button" data-scene-view="1" data-scene-kind="sindaris" data-scene-title="SINDARIS Terminal" data-scene-url="https://sandalis-web-v2-0.onrender.com/" aria-pressed="false">SINDARIS</button>
-            </div>
-            <div class="scene-motion-controls">
-              <button type="button" class="scene-replay" data-story-replay aria-label="Повторить демонстрацию конфигуратора дивана">Сначала</button>
-              <button type="button" class="scene-toggle" aria-label="Приостановить анимацию" aria-pressed="false">Пауза</button>
+              <button type="button" data-scene-view="0" data-scene-kind="furniture" data-scene-title="Конфигуратор дивана" data-scene-action="Попробовать" data-scene-poster="./assets/furniture/straight.jpg" data-scene-url="./furniture.html#configurator" aria-pressed="true">Мебель</button>
+              <button type="button" data-scene-view="1" data-scene-kind="concert" data-scene-title="После шума" data-scene-action="Смотреть даты" data-scene-poster="./assets/cases/concert.jpg" data-scene-url="./concerts.html#dates" aria-pressed="false">Афиша</button>
+              <button type="button" data-scene-view="2" data-scene-kind="hotel" data-scene-title="Тихая вода" data-scene-action="Подобрать домик" data-scene-poster="./assets/cases/hotel.jpg" data-scene-url="./hotel.html#stay" aria-pressed="false">Отель</button>
             </div>
             <a class="scene-project-link" data-scene-link href="./furniture.html#configurator">Попробовать</a>
           </div>
@@ -89,7 +85,7 @@
     </section>
 
     <section class="work section-wrap" id="work">
-      <div class="section-heading"><div><p class="eyebrow" data-reveal>02 / Портфолио</p><h2 data-reveal>Проекты<br /><em>в деталях.</em></h2></div><p class="section-aside" data-reveal>Конфигуратор модульного дивана и веб-приложение для управления игровым сообществом.</p></div>
+      <div class="section-heading"><div><p class="eyebrow" data-reveal>02 / Портфолио</p><h2 data-reveal>Проекты<br /><em>в деталях.</em></h2></div><p class="section-aside" data-reveal>Соберите диван, подберите домик на выходные или посмотрите афишу концертного тура.</p></div>
       <article class="furniture-case">
         <a class="furniture-case-link" href="./furniture.html">
           <div class="furniture-case-media">
@@ -99,20 +95,21 @@
           <div class="furniture-case-info"><div><h3>Сайт для мебельной студии</h3><p>Посмотрите, как покупатель может настроить диван прямо на странице.</p></div><span class="text-link">Смотреть пример</span></div>
         </a>
       </article>
-      <article class="case-thumbnail" data-case-preview>
-        <a class="case-thumbnail-link" href="https://sandalis-web-v2-0.onrender.com/" target="_blank" rel="noopener noreferrer" aria-label="Открыть SINDARIS Terminal">
-          <div class="preview-top"><strong>SINDARIS<span>Terminal</span></strong><span class="preview-app-label">Веб-приложение</span></div>
-          <div class="preview-stage">
-            <img src="./assets/sindaris/home.png" width="1002" height="480" alt="Главная SINDARIS: заказы, пирамида снабжения и планирование" loading="lazy" decoding="async">
-            <div class="preview-focus" aria-hidden="true"></div>
-            <i class="preview-pulse pulse-orders" aria-hidden="true"></i><i class="preview-pulse pulse-supply" aria-hidden="true"></i><i class="preview-pulse pulse-planning" aria-hidden="true"></i>
-          </div>
-          <div class="preview-bottom" aria-hidden="true"><span class="preview-steps"><span>Заказы</span><span>Снабжение</span><span>Планирование</span></span><span class="preview-motion-label">Интерактивное превью</span></div>
-        </a>
-        <div class="case-thumbnail-title"><h3><a href="https://sandalis-web-v2-0.onrender.com/" target="_blank" rel="noopener noreferrer">SINDARIS Terminal</a></h3><button class="preview-pause" type="button" aria-label="Приостановить анимацию карточки" aria-pressed="false">Пауза</button></div>
-        <p class="case-thumbnail-description">Логистика игрового клана: заявки, снабжение, производственные расчёты и карта планирования.</p>
-        <p class="case-thumbnail-stack">Next.js &nbsp; / &nbsp; FastAPI &nbsp; / &nbsp; PostgreSQL</p>
-      </article>
+      <div class="project-pair">
+        <article class="project-card project-card--concert">
+          <a href="./concerts.html">
+            <div class="project-card-photo"><img src="./assets/cases/concert.jpg" alt="" width="1774" height="887" loading="lazy" decoding="async"><span>После шума.</span></div>
+            <div class="project-card-copy"><h3>Афиша концертного тура</h3><p>Выбор города, даты и билетов.</p><span class="text-link">Смотреть афишу</span></div>
+          </a>
+        </article>
+        <article class="project-card project-card--hotel">
+          <a href="./hotel.html">
+            <div class="project-card-photo"><img src="./assets/cases/hotel.jpg" alt="" width="1774" height="887" loading="lazy" decoding="async"><span>Тихая вода.</span></div>
+            <div class="project-card-copy"><h3>Сайт загородного отеля</h3><p>Подбор домика и расчёт стоимости заезда.</p><span class="text-link">Подобрать домик</span></div>
+          </a>
+        </article>
+      </div>
+      <a class="text-link archive-link" href="./archive.html">Архив проектов</a>
     </section>
 
     <section class="process" id="process">
@@ -166,6 +163,5 @@
     </section>
   </main>
   <footer class="footer section-wrap"><a class="wordmark" href="#top"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Веб-студия</span></a><span class="mono">Сайты · Веб-сервисы · Интеграции</span><span class="mono">2026</span></footer>
-  <script src="./case-preview.js" defer></script>
 </body>
 </html>

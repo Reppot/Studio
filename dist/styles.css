@@ -269,21 +269,34 @@ summary::-webkit-details-marker { display: none; }summary::marker { content: "";
 .furniture-case-info .text-link{flex:none}
 @media(max-width:520px){.furniture-case-info{display:block}.furniture-case-info .text-link{margin-top:14px}}
 @media(prefers-reduced-motion:reduce){.furniture-case-media img + img{transition:none}}
-.scene-chrome{position:absolute;z-index:5;inset:calc(var(--scene-edge-top,0px) + clamp(12px,2.5vw,32px)) clamp(12px,4vw,56px) 20px;display:flex;justify-content:flex-end;align-items:flex-start;pointer-events:none}
+.scene-chrome{position:absolute;z-index:5;inset:calc(var(--scene-edge-top,0px) + clamp(12px,2.5vw,32px)) clamp(12px,4vw,56px) calc(var(--scene-edge-top,0px) + 12px);display:flex;justify-content:flex-end;align-items:flex-start;pointer-events:none}
 .scene-toolbar{position:sticky;top:calc(var(--site-header-height,90px) + 12px);display:flex;align-items:center;gap:8px;padding:6px;color:#fff9ec;background:#201b17ed;border:1px solid #f5e9d64f;box-shadow:0 7px 26px #17130d25;backdrop-filter:blur(12px);pointer-events:auto}
-.scene-motion-controls{display:flex;gap:3px;align-items:center}
-.scene-toolbar .scene-views button,.scene-toolbar .scene-toggle,.scene-replay,.scene-project-link{min-height:40px;padding:8px 10px;border:1px solid transparent;color:#f4ecdf;font:11px/1.2 var(--mono);white-space:nowrap;background:transparent}
+.scene-toolbar .scene-views button,.scene-project-link{min-height:40px;padding:8px 10px;border:1px solid transparent;color:#f4ecdf;font:11px/1.2 var(--mono);white-space:nowrap;background:transparent}
 .scene-toolbar .scene-views button[aria-pressed=true]{border-color:#dfd3be85;background:#fff4d91a;color:#fff9ec}
 .scene-toolbar button:hover:not(:disabled){border-color:#fff4d972;color:#fff9ec}
-.scene-replay[hidden]{display:none}
 .scene-toolbar .scene-project-link{display:inline-flex;align-items:center;justify-content:center;background:#f4ead9;color:#26221a;font-family:inherit;font-weight:600;text-decoration:none}
 .scene-toolbar .scene-project-link:hover{background:#fff8eb;color:#26221a}
 .scene-shell .hero-art{margin:0}
-.scene-play-focus{position:absolute;top:60%;left:50%;width:1px;height:1px;pointer-events:none}
 .scene-hint{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:510px){
-  .scene-toolbar{display:grid;grid-template-columns:auto auto;gap:4px 7px}
-  .scene-project-link{grid-row:1;grid-column:2}
-  .scene-motion-controls{grid-column:1/-1;justify-content:flex-end}
-  .scene-toolbar .scene-views button,.scene-toolbar .scene-toggle,.scene-replay,.scene-project-link{min-height:36px;padding-inline:8px;font-size:10px}
+  .scene-toolbar{gap:4px;padding:4px}
+  .scene-toolbar .scene-views{gap:2px}
+  .scene-toolbar .scene-views button,.scene-project-link{min-height:36px;padding-inline:6px;font-size:10px}
 }
+.project-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,3vw,38px)}
+.project-card>a{display:block;height:100%;background:#e4e8da;color:#243629}
+.project-card--concert>a{background:#24271a;color:#f4f2e6}
+.project-card-photo{position:relative;display:grid;place-items:center;aspect-ratio:2;overflow:hidden;background:#24271a;isolation:isolate}
+.project-card-photo img{position:absolute;z-index:-2;inset:0;width:100%;height:100%;object-fit:cover}
+.project-card-photo::after{position:absolute;z-index:-1;inset:0;content:'';background:#12201935}
+.project-card-photo span{padding:12px;color:#f4f0db;font:italic 400 clamp(25px,5vw,84px)/.9 Georgia,serif;letter-spacing:-.07em;text-shadow:0 4px 20px #121511}
+.project-card--concert .project-card-photo span{color:#e4f877;font:900 clamp(26px,5vw,83px)/.9 Arial,sans-serif;text-transform:uppercase;letter-spacing:-.095em}
+.project-card-copy{padding:clamp(16px,3vw,36px)}
+.project-card-copy h3{font-size:clamp(21px,3vw,42px);line-height:1.08;letter-spacing:-.055em;margin:0 0 8px}
+.project-card-copy p{font-size:14px}
+.project-card-copy .text-link{color:inherit;margin-top:13px}
+.archive-link{margin-top:25px}
+.project-archive{padding-block:clamp(32px,8vw,100px)}
+.project-archive h1{margin:30px 0 38px}
+.project-archive .case-thumbnail-title h2{font-size:23px}
+@media(max-width:600px){.project-pair{grid-template-columns:1fr}}
