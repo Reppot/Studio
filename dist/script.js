@@ -71,6 +71,19 @@
 
   const steps = $$('.process-step'), process = $('.process-steps'), counter = $('.counter-current');
   const ink = $('[data-ink]'), stack = $('.stack-scene'), about = $('.about'), contact = $('.contact');
+  const stackControls = $('.stack-controls', about);
+  const stackButtons = $$('[data-stack-select]', stackControls);
+  const stackCases = $$('[data-stack-case]', stack);
+  const stackDescription = $('[data-stack-description-text]', about);
+  const stackLink = $('[data-stack-link]', about);
+  stackButtons.forEach(button => button.addEventListener('click', () => {
+    const { stackSelect, stackDescription: description, stackHref } = button.dataset;
+    stackButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+    stackCases.forEach(panel => { panel.hidden = panel.dataset.stackCase !== stackSelect; });
+    stackDescription.textContent = description;
+    stackLink.href = stackHref;
+  }));
+  stackControls.hidden = false;
   const progress = $('.reading-progress'), sections = $$('section[id]'), navLinks = $$('a[href^="#"]', nav);
   let scheduled = false, currentStep = -1, height = innerHeight;
   function requestUpdate() {

@@ -129,11 +129,45 @@
     </section>
 
     <section class="about section-wrap" id="about">
-      <div class="about-visual" aria-hidden="true"><div class="stack-scene">
-        <div class="stack-plane plane-data"><span class="mono">Данные</span><div class="data-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
-        <div class="stack-plane plane-logic"><span class="mono">Логика</span><div class="logic-grid"><i></i><i></i><i></i><i></i></div></div>
-        <div class="stack-plane plane-interface"><span class="mono">Интерфейс</span><b>web.</b><div class="interface-lines"><i></i><i></i></div></div>
-      </div><span class="stack-caption mono">Каждая часть на своём месте</span></div>
+      <figure class="about-figure">
+        <div class="about-visual">
+          <div class="stack-controls" role="group" aria-label="Кейс для схемы" hidden>
+            <button type="button" data-stack-select="furniture" data-stack-href="./furniture.html#configurator" data-stack-description="Компоновка и высота спинки меняют модель, габариты и чертёж." aria-controls="stack-furniture" aria-pressed="true">Диван</button>
+            <button type="button" data-stack-select="concert" data-stack-href="./concerts.html#dates" data-stack-description="Город отбирает концерты, а зона и количество билетов определяют итоговую цену." aria-controls="stack-concert" aria-pressed="false">Афиша</button>
+            <button type="button" data-stack-select="hotel" data-stack-href="./hotel.html#stay" data-stack-description="Даты и число гостей определяют доступные домики и цену заезда." aria-controls="stack-hotel" aria-pressed="false">Отель</button>
+          </div>
+          <div class="stack-scene">
+            <div class="stack-case" id="stack-furniture" data-stack-case="furniture">
+              <div class="stack-plane plane-data"><span class="mono">Данные</span><p>Шезлонг справа · низкая спинка</p></div>
+              <div class="stack-plane plane-logic"><span class="mono">Расчёт глубины</span><p>100 + 70 = 170 см</p></div>
+              <div class="stack-plane plane-interface">
+                <img src="./assets/furniture/corner.jpg" width="1774" height="887" alt="" loading="lazy" decoding="async">
+                <div class="stack-screen"><span class="mono">Конфигуратор</span><b>Угловой<br>диван</b><p>280 × 170 × 78 см</p></div>
+              </div>
+            </div>
+            <div class="stack-case" id="stack-concert" data-stack-case="concert" hidden>
+              <div class="stack-plane plane-data"><span class="mono">Данные</span><p>Казань · 19 марта · 2 билета</p></div>
+              <div class="stack-plane plane-logic"><span class="mono">Расчёт билетов</span><p>1 800 ₽ × 2 билета</p></div>
+              <div class="stack-plane plane-interface">
+                <img src="./assets/cases/concert.jpg" width="1774" height="887" alt="" loading="lazy" decoding="async">
+                <div class="stack-screen"><span class="mono">Афиша тура</span><b>После<br>шума</b><p>Билеты · 3 600 ₽</p></div>
+              </div>
+            </div>
+            <div class="stack-case" id="stack-hotel" data-stack-case="hotel" hidden>
+              <div class="stack-plane plane-data"><span class="mono">Данные</span><p>2 гостя · 3 будние ночи</p></div>
+              <div class="stack-plane plane-logic"><span class="mono">Расчёт заезда</span><p>6 800 ₽ × 3 ночи</p></div>
+              <div class="stack-plane plane-interface">
+                <img src="./assets/cases/hotel.jpg" width="1774" height="887" alt="" loading="lazy" decoding="async">
+                <div class="stack-screen"><span class="mono">Тихая вода</span><b>Домик<br>«У воды»</b><p>Заезд · 20 400 ₽</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="stack-caption">
+          <p class="stack-description" data-stack-description-text aria-live="polite">Компоновка и высота спинки меняют модель, габариты и чертёж.</p>
+          <a class="text-link" data-stack-link href="./furniture.html#configurator">Открыть кейс</a>
+        </figcaption>
+      </figure>
       <div class="about-copy"><p class="eyebrow" data-reveal>04 / Подход</p><h2 class="ink-heading" data-ink>Продумываем<br />то, что видно.<br /><em>И то, что внутри.</em></h2><p class="about-lead" data-reveal>Интерфейс, данные, формы и интеграции — части одного продукта. Их важно проектировать вместе.</p><p data-reveal>Так проще поддерживать сайт, добавлять функции и развивать его после запуска. Можно прийти с готовым макетом или обсудить техническую часть проекта.</p></div>
     </section>
 
