@@ -5,10 +5,8 @@
     const root=host.closest('.scene-shell')||host;
     const canvas = host.querySelector('canvas'), hint = root.querySelector('#scene-hint');
     const buttons = Array.from(root.querySelectorAll('[data-scene-view]'));
-    const counter = root.querySelector('[data-scene-counter]');
-    const title=root.querySelector('[data-scene-name]'),link=root.querySelector('[data-scene-link]');
+    const link=root.querySelector('[data-scene-link]');
     const status=root.querySelector('[data-story-status]'),replay=root.querySelector('[data-story-replay]');
-    const progress=root.querySelector('[data-scene-progress]');
     const focus=root.querySelector('[data-story-focus]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let gl;
@@ -154,17 +152,17 @@
     const dwellLimit=()=>isSindaris()?14:10;
     function sync(){
       buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
-      counter.textContent=String(index+1).padStart(2,'0')+' / '+String(views.length).padStart(2,'0');
       canvas.setAttribute('aria-label','Сферический экран: '+views[index].title+'. Клавиши влево и вправо переключают проект.');
       const view=views[index],isCase=view.kind==='sindaris';
-      root.dataset.sceneKind=view.kind;title.textContent=view.title;
+      root.dataset.sceneKind=view.kind;
       link.href=view.url;
       link.textContent=isCase?'Открыть проект':'Попробовать';
       link.setAttribute('aria-label',isCase?'Открыть проект '+view.title:'Попробовать конфигуратор дивана');
       if(isCase){link.target='_blank';link.rel='noopener noreferrer';}else{link.removeAttribute('target');link.removeAttribute('rel');}
       replay.hidden=reduced.matches;
       replay.setAttribute('aria-label',isCase?'Повторить демонстрацию проекта '+view.title:'Повторить демонстрацию конфигуратора дивана');
-      hint.textContent=isCase?'Демонстрация сверки склада и переноса недостающих ресурсов в заказ. Данные иллюстративные. Управление расположено над экраном.':'Демонстрация двух компоновок модульного дивана. Управление расположено над экраном.';
+      const description=isCase?'Демонстрация сверки склада и переноса ресурсов в заказ.':'Демонстрация двух компоновок модульного дивана.';
+      hint.textContent=description+' Кнопки управления находятся в правом верхнем углу экрана.';
       lastStep='';syncStory();
     }
     function syncStory(){
@@ -174,7 +172,6 @@
         lastStep=String(step);root.dataset.storyStep=lastStep;
         status.textContent=isCase?'Пример работы · '+['Сверяем склад','Не хватает 55 ящиков','Переносим нехватку в заказ','Состав заказа готов'][step]:['Прямая компоновка','Угловая компоновка'][step];
       }
-      progress.style.transform='scaleX('+Math.min(1,dwell/dwellLimit())+')';
     }
     function go(viewIndex,direction=1,manual=false) {
       if(manual)hold=true;
@@ -245,7 +242,11 @@
       const renderWidth=Math.min(limit,desired,limit*displayWidth/displayHeight);
       canvas.width=Math.round(renderWidth);canvas.height=Math.round(Math.min(4096,renderWidth*displayHeight/displayWidth));
       canvas.dataset.textureWidth=String(textureWidth);canvas.dataset.textureHeight=String(textureWidth/2);
-      span=box.width/displayWidth;matrix=projection(displayWidth/displayHeight);draw();gl.flush();schedule();
+      span=box.width/displayWidth;matrix=projection(displayWidth/displayHeight);
+      const [,edgeY,edgeZ]=surface(1,0);
+      const edgeTop=box.height/2-displayHeight*matrix[5]*edgeY/(2*(6.6-edgeZ));
+      root.style.setProperty('--scene-edge-top',Math.max(0,Math.ceil(edgeTop))+'px');
+      draw();gl.flush();schedule();
       const resizeError=gl.getError();
       if(resizeError!==gl.NO_ERROR)console.warn('Screen resize error:',resizeError);
     }
@@ -254,7 +255,7 @@
       if(reduced.matches)return;
       hold=true;
       storyTime=dwell=0;needsDraw=true;last=performance.now();syncStory();
-      const blocked=document.querySelector('.site-header').getBoundingClientRect().height+root.querySelector('.scene-toolbar').getBoundingClientRect().height;
+      const blocked=document.querySelector('.site-header').getBoundingClientRect().height;
       window.scrollTo({top:Math.max(0,scrollY+focus.getBoundingClientRect().top-(innerHeight+blocked)/2),behavior:'smooth'});
       window.dispatchEvent(new CustomEvent('studio-motion-play'));schedule();
     });

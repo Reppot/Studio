@@ -36,7 +36,17 @@
         <div class="preview">
           <div class="model-stage" data-model-stage>
             <canvas class="model-canvas" aria-hidden="true" hidden></canvas>
-            <svg class="plan" data-plan viewBox="0 0 360 252" role="img" aria-label="Вид дивана сверху"></svg>
+            <svg class="plan" data-plan viewBox="0 0 450 296" role="img" aria-label="Чертёж дивана сверху"></svg>
+            <div class="stage-top">
+              <div class="views" role="group" aria-label="Режим просмотра">
+                <button type="button" data-mode="model" aria-pressed="false" disabled>3D</button>
+                <button type="button" data-mode="drawing" aria-pressed="true">Чертежи</button>
+              </div>
+              <div class="views units" role="group" aria-label="Единицы измерения">
+                <button type="button" data-unit="cm" aria-pressed="true">см</button>
+                <button type="button" data-unit="m" aria-pressed="false">м</button>
+              </div>
+            </div>
             <div class="stage-bottom" data-view-toolbar hidden>
               <div class="views" role="group" aria-label="Ракурс модели">
                 <button type="button" data-view="perspective" aria-pressed="true">Объём</button>
@@ -44,17 +54,25 @@
                 <button type="button" data-view="side" aria-pressed="false">Сбоку</button>
               </div>
             </div>
+            <div class="stage-bottom" data-drawing-toolbar>
+              <div class="views" role="group" aria-label="Проекция чертежа">
+                <button type="button" data-projection="top" aria-pressed="true">Сверху</button>
+                <button type="button" data-projection="front" aria-pressed="false">Спереди</button>
+                <button type="button" data-projection="side" aria-pressed="false">Сбоку</button>
+              </div>
+            </div>
           </div>
           <div class="specification" aria-live="polite" aria-atomic="true">
             <div>
               <p class="label">Ширина × глубина × высота</p>
-              <p class="dimensions"><span data-size>280 × 100 × 78</span> <small>см</small></p>
+              <p class="dimensions"><span data-size>280 × 100 × 78</span> <small data-unit-label>см</small></p>
             </div>
             <div data-bed-spec hidden>
               <p class="label">Спальное место</p>
-              <p class="dimensions">248 × 145 <small>см</small></p>
+              <p class="dimensions"><span data-bed-size>248 × 145</span> <small data-unit-label>см</small></p>
             </div>
           </div>
+          <p class="drawing-note" data-drawing-note>Размеры ориентировочные.</p>
         </div>
         <form class="configuration">
           <h3>Настройте диван</h3>

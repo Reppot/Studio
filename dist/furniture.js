@@ -1,71 +1,95 @@
+import { drawFurniture, formatSize, sofaSize, unitLabel } from './furniture-drawings.js';
+
 const form = document.querySelector('.configuration');
 const size = document.querySelector('[data-size]');
+const bedSize = document.querySelector('[data-bed-size]');
 const bedSpec = document.querySelector('[data-bed-spec]');
-const plan = document.querySelector('[data-plan]');
+const sizeUnits = document.querySelectorAll('[data-unit-label]');
+const drawingNote = document.querySelector('[data-drawing-note]');
 const stage = document.querySelector('[data-model-stage]');
 const canvas = stage.querySelector('canvas');
+const plan = stage.querySelector('[data-plan]');
 const viewToolbar = stage.querySelector('[data-view-toolbar]');
-const viewButtons = [...viewToolbar.querySelectorAll('[data-view]')];
+const drawingToolbar = stage.querySelector('[data-drawing-toolbar]');
+const modeButtons = [...stage.querySelectorAll('[data-mode]')];
+const modelButton = stage.querySelector('[data-mode="model"]');
 let state;
 let model;
+let modelReady = false;
+let mode = 'model';
+let projection = 'top';
+let unit = 'cm';
 
-function drawPlan() {
-  const { chaise, open, height, depth } = state;
-  const rect = (x, y, w, h, r = 5) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
-  const seats = [56, 139, 222].map((x, i) => {
-    const lounge = chaise === i;
-    const seat = rect(x, 55, 82, lounge ? 147 : 77, 8);
-    const extension = open && !lounge ? rect(x, 130, 82, 72, 8) : '';
-    return extension + seat + rect(x, 33, 82, 24, 6);
-  }).join('');
-  const bottom = depth === 170 ? 202 : 132;
-  plan.setAttribute('aria-label', `Вид сверху. Габариты 280 × ${depth} × ${height} см.`);
-  plan.innerHTML = `
-    <g stroke="currentColor" fill="#cbb89d" stroke-width="1.2">
-      ${seats}${rect(40, 48, 16, 84)}${rect(304, 48, 16, 84)}
-    </g>
-    <g stroke="currentColor" fill="none" stroke-width="1" opacity=".55">
-      <path d="M40 219v8m280-8v8M40 223h280 M326 32h8m-4 0v${depth}m-4 0h8"/>
-    </g>
-    <g fill="currentColor" font-size="10" font-family="monospace" text-anchor="middle">
-      <text x="180" y="243">280 см</text>
-      <text x="344" y="${(bottom + 32) / 2}" transform="rotate(-90 344 ${(bottom + 32) / 2})">${depth} см</text>
-    </g>`;
+function press(buttons, selected) {
+  for (const button of buttons) button.setAttribute('aria-pressed', String(button === selected));
+}
+
+function showDimensions() {
+  const dimensions = values => values.map(cm => formatSize(cm, unit)).join(' × ');
+  size.textContent = dimensions([sofaSize.width, state.depth, state.height]);
+  bedSize.textContent = dimensions([sofaSize.bedWidth, sofaSize.bedDepth]);
+  bedSpec.hidden = !state.open;
+  sizeUnits.forEach(element => { element.textContent = unitLabel(unit); });
+}
+
+function showStage() {
+  const drawing = mode === 'drawing' || !modelReady;
+  stage.dataset.mode = drawing ? 'drawing' : 'model';
+  modelButton.disabled = !modelReady;
+  press(modeButtons, drawing ? modeButtons[1] : modelButton);
+  canvas.hidden = drawing;
+  plan.toggleAttribute('hidden', !drawing);
+  viewToolbar.hidden = drawing;
+  drawingToolbar.hidden = !drawing;
+  drawingNote.hidden = !drawing;
+  if (drawing) drawFurniture(plan, state, projection, unit);
 }
 
 function update() {
-  const { layout, mode, back } = Object.fromEntries(new FormData(form));
+  const { layout, mode: position, back } = Object.fromEntries(new FormData(form));
   const chaise = layout === 'left' ? 0 : layout === 'right' ? 2 : -1;
-  const open = mode === 'open';
+  const open = position === 'open';
   const height = back === 'high' ? 99 : 78;
-  const depth = open || chaise >= 0 ? 170 : 100;
+  const depth = sofaSize.depth + (open || chaise >= 0 ? sofaSize.extension : 0);
   state = { chaise, open, height, depth };
-  const dimensions = `280 × ${depth} × ${height}`;
-  if (size.textContent !== dimensions) size.textContent = dimensions;
-  bedSpec.hidden = !open;
-  drawPlan();
+  showDimensions();
+  if (!plan.hasAttribute('hidden')) drawFurniture(plan, state, projection, unit);
   model?.update(state);
-}
-
-function showModel(ready) {
-  canvas.hidden = !ready;
-  plan.toggleAttribute('hidden', ready);
-  viewToolbar.hidden = !ready;
 }
 
 form.addEventListener('change', update);
 form.addEventListener('submit', event => event.preventDefault());
 window.addEventListener('pageshow', update);
-update();
 
-import('./furniture-model.js').then(({ createModel }) => {
-  model = createModel(canvas, state, showModel);
-  showModel(true);
-  for (const button of viewButtons) {
-    button.addEventListener('click', () => {
-      const view = button.dataset.view;
-      viewButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
-      model.view(view);
-    });
+stage.addEventListener('click', event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+  const { mode: nextMode, view, projection: nextProjection, unit: nextUnit } = button.dataset;
+  if (nextMode) {
+    mode = nextMode;
+    showStage();
+  } else if (view) {
+    press(viewToolbar.querySelectorAll('[data-view]'), button);
+    model.view(view);
+  } else if (nextProjection) {
+    projection = nextProjection;
+    press(drawingToolbar.querySelectorAll('[data-projection]'), button);
+    drawFurniture(plan, state, projection, unit);
+  } else if (nextUnit) {
+    unit = nextUnit;
+    press(stage.querySelectorAll('[data-unit]'), button);
+    showDimensions();
+    if (!plan.hasAttribute('hidden')) drawFurniture(plan, state, projection, unit);
   }
-}).catch(() => showModel(false));
+});
+
+update();
+showStage();
+import('./furniture-model.js').then(({ createModel }) => {
+  model = createModel(canvas, state, ready => {
+    modelReady = ready;
+    showStage();
+  });
+  modelReady = true;
+  showStage();
+}).catch(() => showStage());
