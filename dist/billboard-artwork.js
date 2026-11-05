@@ -55,10 +55,7 @@
       shade.addColorStop(0, '#10120914');
       shade.addColorStop(1, '#101209bb');
       fill(c, shade, 0, 0, 2048, 700);
-      type(c, 'КОНЦЕРТНЫЙ ТУР / ВЕСНА 2027', 1024, 232, 'bold 34px Consolas', paper, 'center');
       type(c, 'ПОСЛЕ ШУМА.', 1024, 454, '900 156px Arial', green, 'center');
-      fill(c, green, 894, 514, 260, 68);
-      type(c, 'АФИША ТУРА', 1024, 558, 'bold 29px Arial', '#181a13', 'center');
       [['19 марта', 'Казань'], ['27 марта', 'Нижний Новгород'], ['03 апреля', 'Екатеринбург']].forEach(([date, city], i) => {
         const x = 212 + 403 * i;
         fill(c, '#53573e', x, 760, 365, 2);
@@ -75,10 +72,8 @@
       shade.addColorStop(0, '#14241ae6');
       shade.addColorStop(1, '#14241a00');
       fill(c, shade, 0, 0, 2048, 700);
-      type(c, 'ЗАГОРОДНЫЙ ОТЕЛЬ', 252, 212, 'bold 32px Consolas', cream);
       type(c, 'Тихая вода.', 244, 404, 'italic 146px Georgia', cream);
-      type(c, 'Домики у озера, среди сосен', 254, 486, '36px Arial', cream);
-      type(c, 'ТРИ НОЧИ / ДВА ГОСТЯ', 222, 766, '29px Consolas', '#44564a');
+      type(c, '3 ночи, 2 гостя', 222, 766, '32px Arial', '#44564a');
       [['У воды', '20 400 ₽'], ['Сосновый', '26 700 ₽'], ['На поляне', '35 700 ₽']].forEach(([name, price], i) => {
         const x = 222 + i * 396;
         fill(c, '#b4c0b0', x, 802, 363, 2);

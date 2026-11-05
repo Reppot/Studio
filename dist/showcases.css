@@ -39,7 +39,6 @@ button, summary { cursor: pointer; }
 .tour-hero { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: end; width: min(100%, 1120px); aspect-ratio: 2; margin: clamp(20px, 4vw, 54px) auto clamp(42px, 7vw, 86px); padding: clamp(18px, 3.3vw, 46px); background: #171d0e; }
 .tour-photo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: contain; }
 .tour-hero::after { position: absolute; inset: 0; z-index: -1; content: ''; background: linear-gradient(90deg, #10130978, transparent 76%), linear-gradient(0deg, #111408c9, transparent 65%); pointer-events: none; }
-.tour-poster .case-kicker { color: #eef2d5; }
 .tour h1 { margin-top: .12em; font-size: clamp(54px, 11.8vw, 166px); font-weight: 900; letter-spacing: -.098em; line-height: .75; text-transform: uppercase; text-shadow: 0 3px 16px #0d100969; }
 .tour h1 span { color: var(--action); }
 .tour-hero-action { display: grid; justify-items: start; gap: 15px; padding: 0 7px 7px 0; }
@@ -71,8 +70,7 @@ button, summary { cursor: pointer; }
 .hotel-hero { display: flex; align-items: center; min-height: clamp(480px, 68vw, calc(100svh - 66px)); padding-block: 48px 68px; }
 .hotel h1 { font-size: clamp(81px, 14vw, 210px); line-height: .74; letter-spacing: -.08em; margin: .17em 0 .23em; }
 .hotel h1 em { color: #e1e8d3; }
-.hotel-hero .case-kicker { color: #c8d7ce; }
-.hotel-hero p:not(.case-kicker) { max-width: 30ch; color: #e1e8de; font-size: clamp(15px, 1.45vw, 19px); }
+.hotel-hero p { max-width: 30ch; color: #e1e8de; font-size: clamp(15px, 1.45vw, 19px); }
 .hotel-hero .hotel-action { margin-top: 23px; }
 .hotel-stay { display: grid; grid-template-columns: minmax(215px, .85fr) minmax(0, 2.65fr); gap: clamp(24px, 5vw, 79px); align-items: start; padding: clamp(20px, 3.8vw, 58px); border-block: 1px solid var(--line); background: linear-gradient(105deg, #102622f5, #142d28d8 60%, #19352b9c); }
 .stay-sidebar { position: sticky; top: 23px; }
@@ -111,7 +109,7 @@ button, summary { cursor: pointer; }
   .tour-poster { grid-area: 1 / 1; padding: 12px 14px 14px; }
   .tour h1 { font-size: clamp(42px, 13vw, 74px); }
   .tour-hero-action { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 17px 0 0; }
-  .tour-hero-action p { font-size: 14px; }
+  .tour-hero-action p { font-size: 14px; white-space: normal; }
   .hotel-hero { align-items: end; min-height: clamp(440px, 72svh, 640px); padding-bottom: 40px; }
   .hotel-landscape img { object-position: 66% center; }
   .hotel-landscape::after { background: linear-gradient(0deg, #102622ed, #10262226 78%), linear-gradient(90deg, #10262274, transparent); }
