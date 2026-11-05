@@ -10,26 +10,32 @@
   <script src="./concerts.js" type="module"></script>
 </head>
 <body class="tour">
-  <header class="case-nav"><a href="./index.html#work">Веб-студия / Проекты</a><a href="#dates">Даты тура</a></header>
+  <div class="tour-atmosphere" aria-hidden="true">
+    <img src="./assets/cases/concert.jpg" alt="" width="1774" height="887" fetchpriority="high">
+    <div class="tour-beams"><i></i><i></i><i></i></div>
+  </div>
+  <header class="case-nav"><a href="./index.html#work">К проектам студии</a><a href="#dates">Даты тура</a></header>
   <main class="case-wrap">
     <section class="tour-hero" aria-labelledby="tour-title">
-      <img src="./assets/cases/concert.jpg" alt="" width="1774" height="887" fetchpriority="high">
       <div class="tour-poster">
-        <p class="case-kicker">Концертный тур / Весна 2027</p>
+        <p class="case-kicker">Концертный тур · 2027</p>
         <h1 id="tour-title">После<br>шума<span>.</span></h1>
+      </div>
+      <div class="tour-hero-action">
+        <p>19 марта — 9 апреля</p>
         <a class="tour-ticket" href="#dates"><span>Смотреть<br>афишу</span><i aria-hidden="true"></i></a>
       </div>
     </section>
     <section class="tour-dates" id="dates" aria-labelledby="dates-title">
       <div class="case-section-head">
-        <h2 id="dates-title">Афиша тура</h2>
+        <h2 id="dates-title">Даты тура</h2>
         <label class="case-field">Город<select data-city><option value="">Все города</option></select></label>
       </div>
       <div data-concerts></div>
       <p class="case-kicker" data-concert-count aria-live="polite"></p>
     </section>
   </main>
-  <footer class="case-footer"><span>После шума / Концертный тур</span><a href="./index.html#work">К проектам студии</a></footer>
+  <footer class="case-footer"><span>После шума</span><a href="./index.html#work">К проектам студии</a></footer>
   <dialog class="case-dialog" data-tickets aria-labelledby="ticket-title">
     <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>
     <p class="case-kicker" data-ticket-date></p>

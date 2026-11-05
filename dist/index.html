@@ -41,18 +41,20 @@
         <div class="hero-art" data-scene>
           <div class="scene-fallback scene-image-fallback" aria-hidden="true"><img src="./assets/furniture/straight.jpg" width="1774" height="887" alt=""></div>
           <canvas class="hero-canvas" tabindex="0" role="img" aria-label="Сферический экран. Выберите проект кнопками или клавишами влево и вправо." aria-describedby="scene-hint scene-status"></canvas>
-          <p class="scene-hint" id="scene-hint">Демонстрация двух компоновок модульного дивана. Кнопки управления находятся в правом верхнем углу экрана.</p>
+          <p class="scene-hint" id="scene-hint">Выбор кейса находится справа вверху. Ссылка «Посмотреть» находится справа внизу.</p>
           <p class="scene-hint" id="scene-status" data-story-status>Прямая компоновка</p>
         </div>
         <div class="scene-chrome">
           <div class="scene-toolbar" role="group" aria-label="Управление витриной">
             <div class="scene-views" role="group" aria-label="Проект на 3D-экране">
-              <button type="button" data-scene-view="0" data-scene-kind="furniture" data-scene-title="Конфигуратор дивана" data-scene-action="Попробовать" data-scene-poster="./assets/furniture/straight.jpg" data-scene-url="./furniture.html#configurator" aria-pressed="true">Мебель</button>
-              <button type="button" data-scene-view="1" data-scene-kind="concert" data-scene-title="После шума" data-scene-action="Смотреть даты" data-scene-poster="./assets/cases/concert.jpg" data-scene-url="./concerts.html#dates" aria-pressed="false">Афиша</button>
-              <button type="button" data-scene-view="2" data-scene-kind="hotel" data-scene-title="Тихая вода" data-scene-action="Подобрать домик" data-scene-poster="./assets/cases/hotel.jpg" data-scene-url="./hotel.html#stay" aria-pressed="false">Отель</button>
+              <button type="button" data-scene-view="0" data-scene-kind="furniture" data-scene-title="Конфигуратор дивана" data-scene-poster="./assets/furniture/straight.jpg" data-scene-url="./furniture.html#configurator" aria-pressed="true">Мебель</button>
+              <button type="button" data-scene-view="1" data-scene-kind="concert" data-scene-title="После шума" data-scene-poster="./assets/cases/concert.jpg" data-scene-url="./concerts.html" aria-pressed="false">Афиша</button>
+              <button type="button" data-scene-view="2" data-scene-kind="hotel" data-scene-title="Тихая вода" data-scene-poster="./assets/cases/hotel.jpg" data-scene-url="./hotel.html" aria-pressed="false">Отель</button>
             </div>
-            <a class="scene-project-link" data-scene-link href="./furniture.html#configurator">Попробовать</a>
           </div>
+        </div>
+        <div class="scene-action-layer">
+          <a class="scene-project-link" data-scene-link href="./furniture.html#configurator">Посмотреть</a>
         </div>
       </div>
       <div class="hero-foot mono"><span>Интерфейс. Логика. Запуск.</span><span>Листайте дальше</span></div>

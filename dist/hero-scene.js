@@ -8,7 +8,7 @@
     const poster=host.querySelector('.scene-image-fallback img');
     const buttons=[...root.querySelectorAll('[data-scene-view]')];
     const views=buttons.map(({dataset})=>({
-      kind:dataset.sceneKind,title:dataset.sceneTitle,action:dataset.sceneAction,
+      kind:dataset.sceneKind,title:dataset.sceneTitle,
       url:dataset.sceneUrl,poster:dataset.scenePoster
     }));
     const descriptions=['Две компоновки дивана','Даты и города концертного тура','Подбор домика и стоимость заезда'];
@@ -20,8 +20,7 @@
       canvas.setAttribute('aria-label','Сферический экран: '+view.title+'. Клавиши влево и вправо переключают проект.');
       root.dataset.sceneKind=view.kind;
       link.href=view.url;
-      link.textContent=view.action;
-      link.setAttribute('aria-label',view.action+' — '+view.title);
+      link.setAttribute('aria-label','Посмотреть — '+view.title);
       if(poster.getAttribute('src')!==view.poster)poster.src=view.poster;
       status.textContent=descriptions[index];
     }
@@ -37,7 +36,7 @@
     sync();
     let gl;
     try{gl=canvas.getContext('webgl',{alpha:true,antialias:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(_){}
-    if(!gl){hint.textContent='Статичная витрина. Выберите кейс кнопками справа.';return;}
+    if(!gl){hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';return;}
     const vertexSource = [
       'attribute vec3 a_position; attribute vec3 a_normal; attribute vec2 a_uv;',
       'uniform mat4 u_projection; uniform float u_span;',
@@ -89,7 +88,7 @@
       gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
       gl.deleteShader(vs);gl.deleteShader(fs);
       if(!gl.getProgramParameter(program,gl.LINK_STATUS)) throw new Error('Unable to link display shader');
-    } catch(error){console.warn('Screen shader unavailable:',error.message);hint.textContent='Статичная витрина. Выберите кейс кнопками справа.';return;}
+    } catch(error){console.warn('Screen shader unavailable:',error.message);hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';return;}
     const identity=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
     function projection(aspect) {
       const f=Math.min(4.0,aspect*3.15),near=.1,far=25;
@@ -269,7 +268,7 @@
     canvas.addEventListener('webglcontextlost',()=>{
       lost=true;cancelAnimationFrame(raf);raf=0;
       host.classList.remove('is-rendered');
-      hint.textContent='Статичная витрина. Выберите кейс кнопками справа.';
+      hint.textContent='Статичная витрина. Выбор кейса справа вверху, ссылка на кейс справа внизу.';
     });
     resize();
     host.classList.add('is-rendered');

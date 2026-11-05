@@ -43,8 +43,8 @@
       shade.addColorStop(1, 'rgba(26,20,15,.76)');
       fill(c, shade, 0, 0, 2048, 1024);
       type(c, 'Конфигуратор', 260, 221, 'bold 92px Georgia', '#fff4e4');
-      type(c, corner ? 'Угловая компоновка' : 'Прямая компоновка', 268, 952, '600 37px Arial', '#fff4e4');
-      type(c, corner ? '280 × 170 см' : '280 × 100 см', 1780, 952, '37px Arial', '#fff4e4', 'right');
+      type(c, corner ? 'Угловая компоновка' : 'Прямая компоновка', 268, 904, '600 37px Arial', '#fff4e4');
+      type(c, corner ? '280 × 170 см' : '280 × 100 см', 268, 953, '32px Arial', '#fff4e4');
     }
     function concert(c) {
       const green = '#e1f66d';
@@ -60,10 +60,10 @@
       fill(c, green, 894, 514, 260, 68);
       type(c, 'АФИША ТУРА', 1024, 558, 'bold 29px Arial', '#181a13', 'center');
       [['19 марта', 'Казань'], ['27 марта', 'Нижний Новгород'], ['03 апреля', 'Екатеринбург']].forEach(([date, city], i) => {
-        const x = 212 + 550 * i;
-        fill(c, '#53573e', x, 760, 510, 2);
+        const x = 212 + 403 * i;
+        fill(c, '#53573e', x, 760, 365, 2);
         type(c, date, x, 822, '36px Consolas', green);
-        type(c, city, x, 890, 'bold 48px Arial', paper);
+        type(c, city, x, 890, 'bold 38px Arial', paper);
       });
     }
     function hotel(c) {
@@ -80,9 +80,9 @@
       type(c, 'Домики у озера, среди сосен', 254, 486, '36px Arial', cream);
       type(c, 'ТРИ НОЧИ / ДВА ГОСТЯ', 222, 766, '29px Consolas', '#44564a');
       [['У воды', '20 400 ₽'], ['Сосновый', '26 700 ₽'], ['На поляне', '35 700 ₽']].forEach(([name, price], i) => {
-        const x = 222 + i * 544;
-        fill(c, '#b4c0b0', x, 802, 505, 2);
-        type(c, name, x, 868, '50px Georgia', '#273d2f');
+        const x = 222 + i * 396;
+        fill(c, '#b4c0b0', x, 802, 363, 2);
+        type(c, name, x, 868, '44px Georgia', '#273d2f');
         type(c, price, x, 926, '35px Arial', '#44564a');
       });
     }

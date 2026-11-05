@@ -271,17 +271,23 @@ summary::-webkit-details-marker { display: none; }summary::marker { content: "";
 @media(prefers-reduced-motion:reduce){.furniture-case-media img + img{transition:none}}
 .scene-chrome{position:absolute;z-index:5;inset:calc(var(--scene-edge-top,0px) + clamp(12px,2.5vw,32px)) clamp(12px,4vw,56px) calc(var(--scene-edge-top,0px) + 12px);display:flex;justify-content:flex-end;align-items:flex-start;pointer-events:none}
 .scene-toolbar{position:sticky;top:calc(var(--site-header-height,90px) + 12px);display:flex;align-items:center;gap:8px;padding:6px;color:#fff9ec;background:#201b17ed;border:1px solid #f5e9d64f;box-shadow:0 7px 26px #17130d25;backdrop-filter:blur(12px);pointer-events:auto}
-.scene-toolbar .scene-views button,.scene-project-link{min-height:40px;padding:8px 10px;border:1px solid transparent;color:#f4ecdf;font:11px/1.2 var(--mono);white-space:nowrap;background:transparent}
+.scene-toolbar .scene-views button{min-height:40px;padding:8px 10px;border:1px solid transparent;color:#f4ecdf;font:11px/1.2 var(--mono);white-space:nowrap;background:transparent}
 .scene-toolbar .scene-views button[aria-pressed=true]{border-color:#dfd3be85;background:#fff4d91a;color:#fff9ec}
 .scene-toolbar button:hover:not(:disabled){border-color:#fff4d972;color:#fff9ec}
-.scene-toolbar .scene-project-link{display:inline-flex;align-items:center;justify-content:center;background:#f4ead9;color:#26221a;font-family:inherit;font-weight:600;text-decoration:none}
-.scene-toolbar .scene-project-link:hover{background:#fff8eb;color:#26221a}
+.scene-action-layer{position:absolute;z-index:4;inset:calc(var(--scene-edge-top,0px) + 16px) clamp(12px,4vw,56px) calc(var(--scene-edge-top,0px) + clamp(15px,3vw,42px));display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;pointer-events:none}
+.scene-project-link{position:sticky;bottom:max(clamp(14px,3vw,44px),env(safe-area-inset-bottom));display:inline-flex;align-items:center;justify-content:center;min-height:64px;padding:clamp(12px,2vw,30px) clamp(16px,3.3vw,53px);border:1px solid #f8eddd80;background:var(--case-action,#f3e3cd);color:var(--case-action-ink,#292119);font:700 clamp(27px,4.35vw,68px)/.95 Georgia,serif;letter-spacing:-.057em;text-decoration:none;white-space:nowrap;box-shadow:0 8px 28px #0e171a4c;pointer-events:auto}
+.scene-shell[data-scene-kind=concert]{--case-action:#dcf468;--case-action-ink:#1d2311}
+.scene-shell[data-scene-kind=concert] .scene-project-link{font-family:Arial,sans-serif;font-weight:900;letter-spacing:-.075em}
+.scene-shell[data-scene-kind=hotel]{--case-action:#e1e8d6;--case-action-ink:#20352b}
+.scene-project-link:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.16em}
+.scene-project-link:focus-visible{outline:2px solid #fff;outline-offset:4px}
 .scene-shell .hero-art{margin:0}
 .scene-hint{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:510px){
   .scene-toolbar{gap:4px;padding:4px}
   .scene-toolbar .scene-views{gap:2px}
-  .scene-toolbar .scene-views button,.scene-project-link{min-height:36px;padding-inline:6px;font-size:10px}
+  .scene-toolbar .scene-views button{min-height:36px;padding-inline:6px;font-size:10px}
+  .scene-project-link{min-height:58px}
 }
 .project-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,3vw,38px)}
 .project-card>a{display:block;height:100%;background:#e4e8da;color:#243629}
