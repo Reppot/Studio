@@ -63,24 +63,119 @@
       <span>Дизайн</span><i></i><span class="ribbon-outline">Разработка</span><i></i><span>Веб-сервисы</span><i></i><span class="ribbon-outline">Интеграции</span><i></i>
     </div></div>
 
-    <section class="services section-wrap" id="services">
-      <div class="section-heading">
-        <div><h2 data-reveal>От макета<br />до работающего<br /><em>сайта.</em></h2></div>
-        <p class="section-aside" data-reveal>Фронтенд, серверная часть и интеграции в рамках одного проекта. Можно начать с идеи или готового дизайна.</p>
+    <section class="services section-wrap" id="services" aria-labelledby="services-title">
+      <div class="section-heading services-heading">
+        <h2 id="services-title" data-reveal>Что мы <em>делаем.</em></h2>
+        <p class="section-aside" data-reveal>Проектируем страницы и интерфейсы, пишем серверную часть и подключаем нужные вам сервисы.</p>
       </div>
       <div class="service-list">
-        <details class="service-row" data-reveal>
-          <summary><h3>Сайт для компании</h3><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="disclosure-body"><div class="service-content"><p>Сайт, на котором понятно, чем занимается компания, что она предлагает и как с ней связаться.</p><ul><li>Структура и адаптивные страницы</li><li>Формы и системы управления контентом</li><li>Подготовка к публикации и передача проекта</li></ul><a href="#contact" class="text-link" data-service="Сайт для компании">Обсудить сайт</a></div></div>
-        </details>
-        <details class="service-row" data-reveal>
-          <summary><h3>Веб-сервис</h3><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="disclosure-body"><div class="service-content"><p>Продукт со своей логикой: личный кабинет, внутренний инструмент или онлайн-сервис.</p><ul><li>Пользовательские сценарии и интерфейс</li><li>Серверная логика и работа с данными</li><li>Подключение внешних систем</li></ul><a href="#contact" class="text-link" data-service="Веб-сервис">Обсудить сервис</a></div></div>
-        </details>
-        <details class="service-row" data-reveal>
-          <summary><h3>Развитие сайта</h3><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="disclosure-body"><div class="service-content"><p>Новые задачи для уже работающего сайта: от отдельной страницы до изменения архитектуры.</p><ul><li>Новые разделы и функции</li><li>Исправление ошибок и оптимизация</li><li>Обновления и техническая поддержка</li></ul><a href="#contact" class="text-link" data-service="Развитие сайта">Обсудить доработку</a></div></div>
-        </details>
+        <article class="service-tile service-tile--site">
+          <div class="service-copy">
+            <h3>Сайт для компании</h3>
+            <p>Соберём страницы, подключим формы и настроим редактор, чтобы вы могли сами обновлять сайт.</p>
+          </div>
+          <div class="site-demo" data-site-demo data-device="desktop">
+            <div class="site-demo-stage" aria-hidden="true">
+              <div class="site-demo-desktop">
+                <div class="site-demo-bar"><i></i><i></i><i></i></div>
+                <div class="site-demo-page">
+                  <img src="./assets/cases/hotel.jpg" width="1774" height="887" alt="" loading="lazy" decoding="async">
+                  <span>Тихая<br>вода.</span>
+                </div>
+              </div>
+              <div class="site-demo-phone">
+                <div class="site-demo-page">
+                  <img src="./assets/cases/hotel.jpg" width="1774" height="887" alt="" loading="lazy" decoding="async">
+                  <span>Тихая<br>вода.</span>
+                </div>
+              </div>
+            </div>
+            <div class="service-switch" role="group" aria-label="Размер экрана" data-device-options hidden>
+              <button type="button" data-device-option="desktop" aria-pressed="true">Компьютер</button>
+              <button type="button" data-device-option="mobile" aria-pressed="false">Телефон</button>
+            </div>
+          </div>
+          <a class="service-cta" href="#contact" data-service="Сайт для компании">Обсудить сайт</a>
+        </article>
+
+        <article class="service-tile service-tile--app">
+          <div class="service-copy">
+            <h3>Веб-сервис</h3>
+            <p>Спроектируем личный кабинет или рабочий инструмент и свяжем его с вашими данными и системами.</p>
+          </div>
+          <div class="service-network" data-service-network>
+            <svg class="network-diagram" viewBox="0 0 480 252" aria-hidden="true">
+              <defs>
+                <pattern id="service-dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#263020" opacity=".24"/></pattern>
+              </defs>
+              <rect width="480" height="252" fill="url(#service-dots)"/>
+              <path d="M111 126H370M240 38V214" stroke="#263020" stroke-opacity=".19" stroke-dasharray="2 5"/>
+              <path class="network-wire" d="M117 126H180M300 126H363"/>
+              <path class="network-signal" pathLength="1" d="M117 126H180M300 126H363"/>
+              <g class="network-node" transform="translate(37 86)">
+                <rect width="80" height="80" rx="17"/>
+                <path d="M25 34c0-5 6-8 15-8s15 3 15 8v16c0 5-6 8-15 8s-15-3-15-8zM25 34c0 5 6 8 15 8s15-3 15-8M25 42c0 5 6 8 15 8s15-3 15-8"/>
+              </g>
+              <g class="network-hub" transform="translate(180 66)">
+                <rect width="120" height="120" rx="24"/>
+                <rect x="24" y="30" width="72" height="60" rx="8"/>
+                <path d="M24 47H96M37 39h2m6 0h2M39 69l9 9 16-19M73 64h11m-11 12h11"/>
+              </g>
+              <g class="network-node" transform="translate(363 86)">
+                <rect width="80" height="80" rx="17"/>
+                <path d="m37 32 6-6a8 8 0 0 1 11 11l-6 6m-5 5-6 6a8 8 0 0 1-11-11l6-6m1 10 14-14"/>
+              </g>
+              <circle class="network-port" cx="148" cy="126" r="4"/>
+              <circle class="network-port" cx="331" cy="126" r="4"/>
+            </svg>
+            <div class="service-switch" data-network-controls hidden>
+              <button type="button" aria-pressed="false" data-network-toggle>Показать связь</button>
+            </div>
+          </div>
+          <a class="service-cta" href="#contact" data-service="Веб-сервис">Обсудить сервис</a>
+        </article>
+
+        <article class="service-tile service-tile--growth">
+          <div class="service-copy">
+            <h3>Развитие сайта</h3>
+            <p>Добавим нужные функции, исправим ошибки и ускорим страницы. Если сайт вырос из старой структуры, пересоберём её.</p>
+            <a class="service-cta" href="#contact" data-service="Развитие сайта">Обсудить доработку</a>
+          </div>
+          <div class="service-compare" data-service-compare>
+            <div class="compare-frame" aria-hidden="true">
+              <svg viewBox="0 0 520 268">
+                <rect width="520" height="268" fill="#dad5c8"/>
+                <path d="M0 29h520" stroke="#a6a195"/>
+                <path d="M17 15h36m400 0h45" stroke="#786f62" stroke-width="4" stroke-linecap="round"/>
+                <rect x="25" y="53" width="470" height="67" fill="#afaa9b"/>
+                <path d="M190 77h140m-122 17h104" stroke="#eee9df" stroke-width="5" stroke-linecap="round"/>
+                <rect x="25" y="138" width="146" height="73" fill="#c5bfb0"/>
+                <rect x="187" y="138" width="146" height="73" fill="#c5bfb0"/>
+                <rect x="349" y="138" width="146" height="73" fill="#c5bfb0"/>
+                <path d="M26 229h124m-124 10h87m75-10h124m-124 10h87m75-10h124m-124 10h87" stroke="#a19b8d" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+              <svg class="compare-new" viewBox="0 0 520 268">
+                <rect width="520" height="268" fill="#f4edda"/>
+                <path d="M0 29h520" stroke="#c7bea5"/>
+                <path d="M17 15h36m400 0h45" stroke="#222722" stroke-width="4" stroke-linecap="round"/>
+                <rect x="25" y="53" width="274" height="124" rx="2" fill="#272c25"/>
+                <path d="M48 89h127m-127 22h97" stroke="#f4edda" stroke-width="10" stroke-linecap="round"/>
+                <rect x="48" y="135" width="78" height="19" rx="9.5" fill="#f27a60"/>
+                <rect x="314" y="53" width="181" height="124" rx="2" fill="#c6d56e"/>
+                <path d="M314 153l68-68 44 44 34-34 35 35v47H314z" fill="#77863e"/>
+                <circle cx="454" cy="80" r="13" fill="#f4edda"/>
+                <rect x="25" y="192" width="470" height="52" rx="2" fill="#e6dbc0"/>
+                <path d="M48 213h93m-93 13h132m183-6h108" stroke="#827762" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+              <span class="compare-divider"><i></i></span>
+            </div>
+            <div class="compare-controls" data-compare-controls hidden>
+              <span aria-hidden="true">После</span>
+              <input type="range" min="0" max="100" value="48" aria-label="Положение границы между макетами">
+              <span aria-hidden="true">До</span>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 

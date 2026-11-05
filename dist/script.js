@@ -140,6 +140,49 @@
     card.addEventListener('pointerleave', () => { card.style.setProperty('--tilt-x', '0deg'); card.style.setProperty('--tilt-y', '0deg'); });
   });
 
+  const siteDemo = $('[data-site-demo]');
+  const deviceOptions = $('[data-device-options]', siteDemo);
+  const deviceButtons = $$('[data-device-option]', deviceOptions);
+  deviceButtons.forEach(button => button.addEventListener('click', () => {
+    siteDemo.dataset.device = button.dataset.deviceOption;
+    deviceButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+  }));
+  deviceOptions.hidden = false;
+
+  const serviceNetwork = $('[data-service-network]');
+  const networkToggle = $('[data-network-toggle]', serviceNetwork);
+  networkToggle.addEventListener('click', () => {
+    const connected = serviceNetwork.toggleAttribute('data-linked');
+    networkToggle.setAttribute('aria-pressed', String(connected));
+  });
+  $('[data-network-controls]', serviceNetwork).hidden = false;
+
+  const comparison = $('[data-service-compare]');
+  const compareFrame = $('.compare-frame', comparison);
+  const compareRange = $('input[type="range"]', comparison);
+  function updateComparison() {
+    const value = Number(compareRange.value);
+    comparison.style.setProperty('--comparison', value + '%');
+    compareRange.setAttribute('aria-valuetext', (100 - value) + '% обновлённого макета');
+  }
+  function moveComparison(event) {
+    const frame = compareFrame.getBoundingClientRect();
+    compareRange.value = String(Math.round(clamp((event.clientX - frame.left) / frame.width) * 100));
+    updateComparison();
+  }
+  compareFrame.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    compareFrame.setPointerCapture(event.pointerId);
+    moveComparison(event);
+  });
+  compareFrame.addEventListener('pointermove', event => {
+    if (compareFrame.hasPointerCapture(event.pointerId)) moveComparison(event);
+  });
+  compareRange.addEventListener('input', updateComparison);
+  updateComparison();
+  comparison.setAttribute('data-interactive', '');
+  $('[data-compare-controls]', comparison).hidden = false;
+
   $$('[data-service]').forEach(link => link.addEventListener('click', () => {
     const field = $('textarea[name="project"]');
     if (!field.value.trim()) field.value = 'Интересует: ' + link.dataset.service + '. ';
